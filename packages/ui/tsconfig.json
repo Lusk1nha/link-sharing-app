@@ -1,0 +1,5 @@
+{
+  "extends": "@link-sharing-app/typescript-config/react-library.json",
+  "include": [".", ".eslintrc.js"],
+  "exclude": ["dist", "build", "node_modules"]
+}

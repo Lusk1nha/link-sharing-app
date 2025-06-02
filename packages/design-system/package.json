@@ -1,0 +1,38 @@
+{
+  "name": "@link-sharing-app/design-system",
+  "version": "1.0.0",
+  "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./styles.css": "./dist/styles.css",
+    "./theme.css": "./src/theme.css"
+  },
+  "scripts": {
+    "build": "tailwindcss -i ./src/styles.css -o ./dist/styles.css",
+    "lint": "eslint src/",
+    "dev": "tailwindcss -i ./src/styles.css -o ./dist/styles.css --watch",
+    "type-check": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.1.0"
+  },
+  "packageManager": "pnpm@10.7.1",
+  "devDependencies": {
+    "@link-sharing-app/eslint-config": "workspace:*",
+    "@link-sharing-app/typescript-config": "workspace:*",
+    "@types/react": "^19.1.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@link-sharing-app/utils": "workspace:*",
+    "@tailwindcss/cli": "^4.1.8",
+    "@tailwindcss/postcss": "^4.1.8",
+    "postcss": "^8.5.4",
+    "tailwindcss": "^4.1.8"
+  }
+}
