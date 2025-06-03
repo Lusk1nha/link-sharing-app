@@ -2,17 +2,12 @@ import { CredentialsService } from "./credentials.service";
 import { Test } from "@nestjs/testing";
 import { DeepMockProxy, mockDeep } from "jest-mock-extended";
 
-import {
-  generateCredentialMock,
-  generateOneCredentialMock,
-} from "./mocks/credential.mock";
+import { generateOneCredentialMock } from "./mocks/credential.mock";
 import { CredentialsRepository } from "./credentials.repository";
 import { CredentialModel } from "./dto/credentials.model";
 import { CreateCredentialDto } from "./dto/credentials.dto";
 import { EmailFactory } from "src/common/entities/email/email.factory";
 import { UUIDFactory } from "src/common/entities/uuid/uuid.factory";
-
-const credentialsMock = generateCredentialMock(5);
 
 describe("CredentialsService", () => {
   let credentialsService: CredentialsService;
@@ -30,7 +25,7 @@ describe("CredentialsService", () => {
     credentialsRepository = moduleRef.get(CredentialsRepository);
   });
 
-  describe("getCredentialByEmail", () => {
+  describe("getCredentialByEmailOrThrow", () => {
     it("should find credential by email", async () => {
       // Arrange
       const mockedCredential = new CredentialModel(generateOneCredentialMock());
@@ -40,12 +35,27 @@ describe("CredentialsService", () => {
 
       // Act
       const findCredentialByEmail = () =>
-        credentialsService.getCredentialByEmail(mockedCredential.email);
+        credentialsService.getCredentialByEmailOrThrow(mockedCredential.email);
 
       // Assert
       await expect(findCredentialByEmail()).resolves.toStrictEqual(
         mockedCredential,
       );
+    });
+  });
+
+  describe("getCredentialByEmail", () => {
+    it("should return null if credential not found", async () => {
+      // Arrange
+      const mockedCredential = new CredentialModel(generateOneCredentialMock());
+      credentialsRepository.getByEmail.mockResolvedValue(null);
+
+      // Act
+      const findCredentialByEmail = () =>
+        credentialsService.getCredentialByEmail(mockedCredential.email);
+
+      // Assert
+      await expect(findCredentialByEmail()).resolves.toBeNull();
     });
   });
 

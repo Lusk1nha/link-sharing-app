@@ -3,7 +3,7 @@ import { CredentialsRepository } from "./credentials.repository";
 import { PrismaClient } from "@prisma/client";
 import { Test } from "@nestjs/testing";
 import { PrismaService } from "src/common/prisma/prisma.service";
-import { faker } from "@faker-js/faker/.";
+import { faker } from "@faker-js/faker";
 
 import {
   generateCredentialMock,
@@ -12,11 +12,12 @@ import {
 import { EmailFactory } from "src/common/entities/email/email.factory";
 import { CredentialModel } from "./dto/credentials.model";
 
-const credentialsMock = generateCredentialMock(5);
-
 describe("CredentialsRepository", () => {
   let credentialsRepository: CredentialsRepository;
   let prismaService: DeepMockProxy<PrismaClient>;
+
+  const credentialsMock = generateCredentialMock(5);
+  const mockedCredential = credentialsMock[0];
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -30,62 +31,65 @@ describe("CredentialsRepository", () => {
     prismaService = moduleRef.get(PrismaService);
   });
 
-  describe("getCredentialByEmail", () => {
-    it("should find credential by email", async () => {
-      // Arrange
-      const mockedCredential = credentialsMock[0];
+  describe("getByEmailOrThrow", () => {
+    it("should return credential model when found", async () => {
       const email = EmailFactory.from(mockedCredential.email);
       prismaService.credential.findUnique.mockResolvedValue(mockedCredential);
 
-      // Act
-      const findCredentialByEmail = () =>
-        credentialsRepository.getByEmailOrThrow(email);
+      const result = await credentialsRepository.getByEmailOrThrow(email);
 
-      // Assert
-      await expect(findCredentialByEmail()).resolves.toStrictEqual(
-        new CredentialModel(mockedCredential),
-      );
-    });
-
-    it("should return null if credential not found", async () => {
-      // Arrange
-      const email = EmailFactory.from(faker.internet.email());
-      prismaService.credential.findUnique.mockResolvedValue(null);
-
-      // Act
-      const findCredentialByEmail = () =>
-        credentialsRepository.getByEmail(email);
-
-      // Assert
-      await expect(findCredentialByEmail()).resolves.toBeNull();
+      expect(prismaService.credential.findUnique).toHaveBeenCalledWith({
+        where: { email: email.toString() },
+      });
+      expect(result).toStrictEqual(new CredentialModel(mockedCredential));
     });
   });
 
-  describe("createCredential", () => {
-    it("should create credential", async () => {
-      // Arrange
-      const mockedCredential = generateOneCredentialMock();
-      prismaService.credential.create.mockResolvedValue(mockedCredential);
+  describe("getByEmail", () => {
+    it("should return null when credential not found", async () => {
+      const email = EmailFactory.from(faker.internet.email());
+      prismaService.credential.findUnique.mockResolvedValue(null);
 
-      // Act
-      const createCredential = () =>
-        credentialsRepository.create({
-          data: {
-            id: mockedCredential.id,
-            user: {
-              connect: { id: mockedCredential.userId },
-            },
-            email: mockedCredential.email,
-            passwordHash: mockedCredential.passwordHash,
-            createdAt: mockedCredential.createdAt,
-            updatedAt: mockedCredential.updatedAt,
+      const result = await credentialsRepository.getByEmail(email);
+
+      expect(prismaService.credential.findUnique).toHaveBeenCalledWith({
+        where: { email: email.toString() },
+      });
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("create", () => {
+    it("should create and return a credential", async () => {
+      const newCredential = generateOneCredentialMock();
+      prismaService.credential.create.mockResolvedValue(newCredential);
+
+      const result = await credentialsRepository.create({
+        data: {
+          id: newCredential.id,
+          user: {
+            connect: { id: newCredential.userId },
           },
-        });
+          email: newCredential.email,
+          passwordHash: newCredential.passwordHash,
+          createdAt: newCredential.createdAt,
+          updatedAt: newCredential.updatedAt,
+        },
+      });
 
-      // Assert
-      await expect(createCredential()).resolves.toStrictEqual(
-        new CredentialModel(mockedCredential),
-      );
+      expect(prismaService.credential.create).toHaveBeenCalledWith({
+        data: {
+          id: newCredential.id,
+          user: {
+            connect: { id: newCredential.userId },
+          },
+          email: newCredential.email,
+          passwordHash: newCredential.passwordHash,
+          createdAt: newCredential.createdAt,
+          updatedAt: newCredential.updatedAt,
+        },
+      });
+      expect(result).toStrictEqual(new CredentialModel(newCredential));
     });
   });
 });

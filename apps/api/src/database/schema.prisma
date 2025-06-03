@@ -15,10 +15,11 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  Admin      Admin?
-  Credential Credential[]
-  Profile    Profile[]
-  UserLinks  UserLinks[]
+  Admin        Admin?
+  Credential   Credential[]
+  Profile      Profile[]
+  UserLinks    UserLinks[]
+  AuthProvider AuthProvider[]
 
   @@map("users")
 }
@@ -45,6 +46,26 @@ model Credential {
 
   @@index([userId], name: "idx_credential_user_id")
   @@map("credentials")
+}
+
+enum AuthSignInType {
+  CREDENTIALS
+  GOOGLE
+  GITHUB
+}
+
+model AuthProvider {
+  id String @id @db.VarChar(255)
+
+  userId String @map("user_id") @db.VarChar(255)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  type AuthSignInType @map("auth_sign_in_type")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId], name: "idx_auth_provider_user_id")
+  @@map("auth_providers")
 }
 
 model Profile {

@@ -9,18 +9,18 @@ export class UUID {
     example: "123e4567-e89b-12d3-a456-426614174000",
     format: "uuid",
   })
-  private readonly value: string;
+  private readonly _value: string;
 
   constructor(value?: string) {
-    this.value = value ? UUID.validateOrThrow(value) : UUID.generateUUID();
+    this._value = value ? UUID.validateOrThrow(value) : UUID.generateUUID();
   }
 
   /**
    * Returns the UUID value as a string.
    * @returns The UUID value.
    */
-  public toString(): string {
-    return this.value;
+  public value(): string {
+    return this._value;
   }
 
   /**

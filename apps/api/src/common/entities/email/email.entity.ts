@@ -7,18 +7,18 @@ export class EmailAddress {
     description: "The email address value",
     example: "teste@example.com",
   })
-  private readonly value: string;
+  private readonly _value: string;
 
   constructor(value: string) {
-    this.value = EmailAddress.validateOrThrow(value);
+    this._value = EmailAddress.validateOrThrow(value);
   }
 
   /**
    * Returns the email address value as a string.
    * @returns The email address value.
    */
-  public toString(): string {
-    return this.value;
+  public value(): string {
+    return this._value;
   }
 
   /**
