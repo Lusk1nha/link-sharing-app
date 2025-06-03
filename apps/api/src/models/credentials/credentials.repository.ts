@@ -3,7 +3,7 @@ import { PrismaService } from "src/common/prisma/prisma.service";
 import { CredentialDto } from "./dto/credentials.model";
 import { Injectable } from "@nestjs/common";
 import { EmailAddress } from "src/common/entities/email/email.entity";
-import { NotFoundCredentialsException } from "./dto/credentials.errors";
+import { NotFoundCredentialException } from "./dto/credentials.errors";
 
 interface CreateCredentialParams {
   data: Prisma.CredentialCreateInput;
@@ -37,7 +37,7 @@ export class CredentialsRepository implements ICredentialsRepository {
     const credential = await this.getByEmail(email);
 
     if (!credential) {
-      throw new NotFoundCredentialsException();
+      throw new NotFoundCredentialException();
     }
 
     return credential;

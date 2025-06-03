@@ -4,9 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.7.1",
   "exports": {
-    "./delay.ts": "./src/delay.ts",
-    "./generator.ts": "./src/generator.ts",
-    "./random.ts": "./src/random.ts"
+    "./utils.ts": "./src/utils.ts"
   },
   "devDependencies": {
     "@link-sharing-app/eslint-config": "workspace:*",

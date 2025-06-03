@@ -1,15 +1,15 @@
 import { HttpStatus } from "@nestjs/common";
 import { BaseHttpException } from "src/common/exceptions/exceptions.common";
 
-export class NotFoundCredentialException extends BaseHttpException {
+export class UserNotFoundException extends BaseHttpException {
   constructor() {
     super(
       {
-        message: "Credentials not found.",
-        code: "NOT_FOUND_CREDENTIALS",
+        message: "User not found.",
+        code: "USER_NOT_FOUND",
       },
       HttpStatus.NOT_FOUND,
-      "NOT_FOUND_CREDENTIALS",
+      "USER_NOT_FOUND",
     );
   }
 }
