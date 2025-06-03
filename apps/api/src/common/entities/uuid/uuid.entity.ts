@@ -1,43 +1,50 @@
 import { BadRequestException } from "@nestjs/common";
-import { v4 as uuidv4, validate } from "uuid";
+import { v4 as uuidv4, validate as isValidUUID } from "uuid";
 
-interface IUUID {
-  value: string;
-  equals(other: UUID): boolean;
-}
+export class UUID {
+  private readonly value: string;
 
-export class UUID implements IUUID {
-  private readonly _value: string;
-
-  constructor(uid?: string) {
-    this._value = uid ? this.validateAndUse(uid) : this.generateNew();
+  constructor(value?: string) {
+    this.value = value ? UUID.validateOrThrow(value) : UUID.generateUUID();
   }
 
-  get value(): string {
-    return this._value;
+  /**
+   * Returns the UUID value as a string.
+   */
+  public toString(): string {
+    return this.value;
   }
 
+  /**
+   * Compares this UUID with another UUID instance.
+   */
   public equals(other: UUID): boolean {
-    return this._value === other.value;
+    return this.value === other.value;
   }
 
+  /**
+   * Create a new UUID instance with a randomly generated value.
+   */
   public static generate(): UUID {
     return new UUID();
   }
 
+  /**
+   * Validates if a given string is a valid UUID format.
+   */
   public static isValid(value: string): boolean {
-    return validate(value);
+    return isValidUUID(value);
   }
 
-  private validateAndUse(uid: string): string {
-    if (!UUID.isValid(uid)) {
-      throw new BadRequestException("Invalid UUID format");
+  private static validateOrThrow(value: string): string {
+    if (!UUID.isValid(value)) {
+      throw new BadRequestException(`Invalid UUID format: "${value}"`);
     }
 
-    return uid;
+    return value;
   }
 
-  private generateNew(): string {
+  private static generateUUID(): string {
     return uuidv4();
   }
 }
