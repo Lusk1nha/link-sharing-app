@@ -10,6 +10,7 @@ export class UUID {
 
   /**
    * Returns the UUID value as a string.
+   * @returns The UUID value.
    */
   public toString(): string {
     return this.value;

@@ -1,7 +1,7 @@
 import { Request } from "express";
 import { BadRequestException, createParamDecorator } from "@nestjs/common";
 
-import { UUID } from "./uuid.entity";
+import { UUIDFactory } from "./uuid.factory";
 
 export const UUIDParam = createParamDecorator((data: string, req) => {
   try {
@@ -12,9 +12,9 @@ export const UUIDParam = createParamDecorator((data: string, req) => {
       throw new BadRequestException(`Missing parameter: ${data}`);
     }
 
-    let uid = new UUID(param);
+    let uuid = UUIDFactory.from(param);
 
-    return uid;
+    return uuid;
   } catch (e) {
     throw new BadRequestException(e.message);
   }
