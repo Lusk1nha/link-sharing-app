@@ -1,4 +1,4 @@
-import { BadRequestException } from "@nestjs/common";
+import { InvalidEmailException } from "./email.errors";
 
 export class EmailAddress {
   private readonly value: string;
@@ -29,7 +29,7 @@ export class EmailAddress {
 
   private static validateOrThrow(value: string): string {
     if (!EmailAddress.isValid(value)) {
-      throw new BadRequestException(`Invalid email address format: "${value}"`);
+      throw new InvalidEmailException(value);
     }
 
     return value;

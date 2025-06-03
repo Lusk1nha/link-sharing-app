@@ -1,17 +1,39 @@
-import { User } from "@prisma/client";
 import { UUID } from "src/common/entities/uuid/uuid.entity";
 import { UUIDFactory } from "src/common/entities/uuid/uuid.factory";
 
-export class UserModel {
-  readonly id: UUID;
-  readonly active: boolean;
-  readonly createdAt: Date;
-  readonly updatedAt: Date;
+export type UserDto = {
+  id: string;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
-  constructor(data: User) {
-    this.id = UUIDFactory.from(data.id);
-    this.active = data.active;
-    this.createdAt = data.createdAt;
-    this.updatedAt = data.updatedAt;
+export class UserModel {
+  private readonly _id: UUID;
+  private readonly _active: boolean;
+  private readonly _createdAt: Date;
+  private readonly _updatedAt: Date;
+
+  constructor(data: UserDto) {
+    this._id = UUIDFactory.from(data.id);
+    this._active = data.active;
+    this._createdAt = data.createdAt;
+    this._updatedAt = data.updatedAt;
+  }
+
+  get id(): UUID {
+    return this._id;
+  }
+
+  get active(): boolean {
+    return this._active;
+  }
+
+  get createdAt(): Date {
+    return this._createdAt;
+  }
+
+  get updatedAt(): Date {
+    return this._updatedAt;
   }
 }

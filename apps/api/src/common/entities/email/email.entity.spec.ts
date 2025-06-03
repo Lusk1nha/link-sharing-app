@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker/.";
 import { EmailAddress } from "./email.entity";
+import { InvalidEmailException } from "./email.errors";
 
 describe("EmailAddress", () => {
   it("should create a new EmailAddress instance with a valid email", () => {
@@ -14,7 +15,7 @@ describe("EmailAddress", () => {
     const invalidEmail = "invalid-email-format";
 
     expect(() => new EmailAddress(invalidEmail)).toThrow(
-      `Invalid email address format: "${invalidEmail}"`,
+      new InvalidEmailException(invalidEmail),
     );
   });
 });

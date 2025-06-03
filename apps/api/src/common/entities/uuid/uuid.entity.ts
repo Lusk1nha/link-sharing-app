@@ -1,5 +1,6 @@
 import { BadRequestException } from "@nestjs/common";
 import { v4 as uuidv4, validate as isValidUUID } from "uuid";
+import { InvalidUUIDException } from "./uuid.errors";
 
 export class UUID {
   private readonly value: string;
@@ -39,7 +40,7 @@ export class UUID {
 
   private static validateOrThrow(value: string): string {
     if (!UUID.isValid(value)) {
-      throw new BadRequestException(`Invalid UUID format: "${value}"`);
+      throw new InvalidUUIDException(value);
     }
 
     return value;

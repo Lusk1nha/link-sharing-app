@@ -1,4 +1,5 @@
 import { EmailAddress } from "./email.entity";
+import { InvalidEmailException } from "./email.errors";
 import { EmailFactory } from "./email.factory";
 
 import { faker } from "@faker-js/faker";
@@ -16,7 +17,7 @@ describe("EmailFactory", () => {
     const invalidEmail = "invalid-email-format";
 
     expect(() => EmailFactory.from(invalidEmail)).toThrow(
-      `Invalid email address format: "${invalidEmail}"`,
+      new InvalidEmailException(invalidEmail),
     );
   });
 });

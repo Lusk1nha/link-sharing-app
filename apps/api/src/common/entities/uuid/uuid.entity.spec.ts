@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker/.";
 import { UUID } from "./uuid.entity";
+import { InvalidUUIDException } from "./uuid.errors";
 
 describe("UUID Entity", () => {
   it("should create a new UUID instance with a valid UUID", () => {
@@ -17,7 +18,7 @@ describe("UUID Entity", () => {
   it("should throw an error for an invalid UUID", () => {
     const invalidUUID = "invalid-uuid-format";
     expect(() => new UUID(invalidUUID)).toThrow(
-      `Invalid UUID format: "${invalidUUID}"`,
+      new InvalidUUIDException(invalidUUID),
     );
   });
 });
