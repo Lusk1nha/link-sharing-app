@@ -3,8 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "migrate": "npx prisma migrate dev --schema=src/database/schema.prisma",
-    "migrate:reset": "npx prisma migrate reset --force --schema=src/database/schema.prisma",
+    "prisma:studio": "npx prisma studio --schema=src/database/schema.prisma",
+    "prisma:migrate": "npx prisma migrate dev --schema=src/database/schema.prisma",
+    "prisma:migrate:reset": "npx prisma migrate reset --force --schema=src/database/schema.prisma",
     "build": "nest build",
     "start": "nest start",
     "dev": "nest start --watch",
@@ -19,11 +20,14 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.2.0",
     "@prisma/client": "^6.8.2",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
