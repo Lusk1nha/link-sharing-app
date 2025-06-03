@@ -25,3 +25,7 @@ function createCredentialMockFactory(): CredentialDto {
 export function generateCredentialMock(length = 0): CredentialDto[] {
   return MockUtils.generateMany(createCredentialMockFactory, length);
 }
+
+export function generateOneCredentialMock(): CredentialDto {
+  return generateCredentialMock(1)[0];
+}

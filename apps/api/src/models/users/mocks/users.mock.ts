@@ -20,3 +20,7 @@ function createUserMockFactory(): UserDto {
 export function generateUserMock(length = 0): UserDto[] {
   return MockUtils.generateMany(createUserMockFactory, length);
 }
+
+export function generateOneUserMock(): UserDto {
+  return generateUserMock(1)[0];
+}

@@ -1,6 +1,12 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { InvalidEmailException } from "./email.errors";
 
 export class EmailAddress {
+  @ApiProperty({
+    type: String,
+    description: "The email address value",
+    example: "teste@example.com",
+  })
   private readonly value: string;
 
   constructor(value: string) {

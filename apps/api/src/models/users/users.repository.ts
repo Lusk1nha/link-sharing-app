@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/common/prisma/prisma.service";
-import { UserDto } from "./dto/users.model";
+import { UserDto, UserModel } from "./dto/users.model";
 import { UUID } from "src/common/entities/uuid/uuid.entity";
 import { UserNotFoundException } from "./dto/users.errors";
 
@@ -18,23 +18,29 @@ interface GetAllUsersParams {
 }
 
 interface IUserRepository {
-  getUserById(id: UUID): Promise<UserDto | null>;
-  getUserByIdOrThrow(id: UUID): Promise<UserDto>;
-  getUsers(params: GetAllUsersParams): Promise<UserDto[]>;
-  create(params: CreateUserParams): Promise<UserDto>;
+  getUserById(id: UUID): Promise<UserModel | null>;
+  getUserByIdOrThrow(id: UUID): Promise<UserModel>;
+  getUsers(params: GetAllUsersParams): Promise<UserModel[]>;
+  create(params: CreateUserParams): Promise<UserModel>;
 }
 
 @Injectable()
 export class UsersRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getUserById(id: UUID): Promise<UserDto | null> {
-    return this.prisma.user.findUnique({
+  async getUserById(id: UUID): Promise<UserModel | null> {
+    const user = await this.prisma.user.findUnique({
       where: { id: id.toString() },
     });
+
+    if (!user) {
+      return null;
+    }
+
+    return new UserModel(user);
   }
 
-  async getUserByIdOrThrow(id: UUID): Promise<UserDto> {
+  async getUserByIdOrThrow(id: UUID): Promise<UserModel> {
     const user = await this.getUserById(id);
 
     if (!user) {
@@ -44,23 +50,27 @@ export class UsersRepository implements IUserRepository {
     return user;
   }
 
-  async getUsers(params: GetAllUsersParams): Promise<UserDto[]> {
+  async getUsers(params: GetAllUsersParams): Promise<UserModel[]> {
     const { skip, take, cursor, where, orderBy } = params;
 
-    return this.prisma.user.findMany({
+    const users = await this.prisma.user.findMany({
       skip,
       take,
       cursor,
       where,
       orderBy,
     });
+
+    return users.map((user) => new UserModel(user));
   }
 
-  async create(params: CreateUserParams): Promise<UserDto> {
+  async create(params: CreateUserParams): Promise<UserModel> {
     const { data } = params;
 
-    return this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data,
     });
+
+    return new UserModel(user);
   }
 }

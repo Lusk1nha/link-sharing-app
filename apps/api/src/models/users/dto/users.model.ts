@@ -1,3 +1,5 @@
+import { ApiProperty } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 import { UUID } from "src/common/entities/uuid/uuid.entity";
 import { UUIDFactory } from "src/common/entities/uuid/uuid.factory";
 
@@ -9,31 +11,34 @@ export type UserDto = {
 };
 
 export class UserModel {
-  private readonly _id: UUID;
-  private readonly _active: boolean;
-  private readonly _createdAt: Date;
-  private readonly _updatedAt: Date;
+  @ApiProperty({
+    type: UUID,
+    description: "Unique identifier for the user",
+  })
+  readonly id: UUID;
+
+  @ApiProperty({
+    type: Boolean,
+    description: "Indicates if the user is active",
+  })
+  readonly active: boolean;
+
+  @ApiProperty({
+    type: Date,
+    description: "Timestamp when the user was created",
+  })
+  readonly createdAt: Date;
+
+  @ApiProperty({
+    type: Date,
+    description: "Timestamp when the user was last updated",
+  })
+  readonly updatedAt: Date;
 
   constructor(data: UserDto) {
-    this._id = UUIDFactory.from(data.id);
-    this._active = data.active;
-    this._createdAt = data.createdAt;
-    this._updatedAt = data.updatedAt;
-  }
-
-  get id(): UUID {
-    return this._id;
-  }
-
-  get active(): boolean {
-    return this._active;
-  }
-
-  get createdAt(): Date {
-    return this._createdAt;
-  }
-
-  get updatedAt(): Date {
-    return this._updatedAt;
+    this.id = UUIDFactory.from(data.id);
+    this.active = data.active;
+    this.createdAt = data.createdAt;
+    this.updatedAt = data.updatedAt;
   }
 }

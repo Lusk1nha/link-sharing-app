@@ -5,8 +5,9 @@ import { UsersRepository } from "./users.repository";
 import { mockDeep, DeepMockProxy } from "jest-mock-extended";
 import { PrismaService } from "src/common/prisma/prisma.service";
 import { faker } from "@faker-js/faker/.";
-import { generateUserMock } from "./mocks/users.mock";
+import { generateOneUserMock, generateUserMock } from "./mocks/users.mock";
 import { UUIDFactory } from "src/common/entities/uuid/uuid.factory";
+import { UserModel } from "./dto/users.model";
 
 const usersMock = generateUserMock(5);
 
@@ -37,7 +38,9 @@ describe("UsersRepository", () => {
       const findUserById = () => usersRepository.getUserByIdOrThrow(userId);
 
       // Assert
-      await expect(findUserById()).resolves.toBe(mockedUser);
+      await expect(findUserById()).resolves.toStrictEqual(
+        new UserModel(mockedUser),
+      );
     });
 
     it("should return null if user not found", async () => {
@@ -63,19 +66,16 @@ describe("UsersRepository", () => {
       const getAllUsers = () => usersRepository.getUsers({});
 
       // Assert
-      await expect(getAllUsers()).resolves.toEqual(mockedUsers);
+      await expect(getAllUsers()).resolves.toStrictEqual(
+        mockedUsers.map((user) => new UserModel(user)),
+      );
     });
   });
 
   describe("createUser", () => {
     it("should create a new user", async () => {
       // Arrange
-      const mockedUser = {
-        id: faker.string.uuid(),
-        active: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const mockedUser = generateOneUserMock();
 
       prismaService.user.create.mockResolvedValue(mockedUser);
 
@@ -91,7 +91,9 @@ describe("UsersRepository", () => {
         });
 
       // Assert
-      await expect(createUser()).resolves.toBe(mockedUser);
+      await expect(createUser()).resolves.toStrictEqual(
+        new UserModel(mockedUser),
+      );
     });
   });
 });

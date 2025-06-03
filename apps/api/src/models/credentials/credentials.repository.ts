@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/common/prisma/prisma.service";
-import { CredentialDto } from "./dto/credentials.model";
+import { CredentialDto, CredentialModel } from "./dto/credentials.model";
 import { Injectable } from "@nestjs/common";
 import { EmailAddress } from "src/common/entities/email/email.entity";
 import { NotFoundCredentialException } from "./dto/credentials.errors";
@@ -15,25 +15,31 @@ interface UpdateCredentialParams {
 }
 
 interface ICredentialsRepository {
-  getByEmail(email: EmailAddress): Promise<CredentialDto | null>;
-  getByEmailOrThrow(email: EmailAddress): Promise<CredentialDto>;
-  create(params: CreateCredentialParams): Promise<CredentialDto>;
-  update(params: UpdateCredentialParams): Promise<CredentialDto>;
+  getByEmail(email: EmailAddress): Promise<CredentialModel | null>;
+  getByEmailOrThrow(email: EmailAddress): Promise<CredentialModel>;
+  create(params: CreateCredentialParams): Promise<CredentialModel>;
+  update(params: UpdateCredentialParams): Promise<CredentialModel>;
 }
 
 @Injectable()
 export class CredentialsRepository implements ICredentialsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getByEmail(email: EmailAddress): Promise<CredentialDto | null> {
-    return this.prisma.credential.findUnique({
+  async getByEmail(email: EmailAddress): Promise<CredentialModel | null> {
+    const response = await this.prisma.credential.findUnique({
       where: {
         email: email.toString(),
       },
     });
+
+    if (!response) {
+      return null;
+    }
+
+    return new CredentialModel(response);
   }
 
-  async getByEmailOrThrow(email: EmailAddress): Promise<CredentialDto> {
+  async getByEmailOrThrow(email: EmailAddress): Promise<CredentialModel> {
     const credential = await this.getByEmail(email);
 
     if (!credential) {
@@ -43,20 +49,24 @@ export class CredentialsRepository implements ICredentialsRepository {
     return credential;
   }
 
-  async create(params: CreateCredentialParams): Promise<CredentialDto> {
+  async create(params: CreateCredentialParams): Promise<CredentialModel> {
     const { data } = params;
 
-    return this.prisma.credential.create({
+    const response = await this.prisma.credential.create({
       data,
     });
+
+    return new CredentialModel(response);
   }
 
-  async update(params: UpdateCredentialParams): Promise<CredentialDto> {
+  async update(params: UpdateCredentialParams): Promise<CredentialModel> {
     const { data, where } = params;
 
-    return this.prisma.credential.update({
+    const response = await this.prisma.credential.update({
       data,
       where,
     });
+
+    return new CredentialModel(response);
   }
 }

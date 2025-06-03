@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { EmailAddress } from "src/common/entities/email/email.entity";
 import { EmailFactory } from "src/common/entities/email/email.factory";
 import { UUID } from "src/common/entities/uuid/uuid.entity";
@@ -13,43 +14,49 @@ export type CredentialDto = {
 };
 
 export class CredentialModel {
-  private readonly _id: UUID;
-  private readonly _userId: UUID;
-  private readonly _email: EmailAddress;
-  private readonly _passwordHash: string;
-  private readonly _createdAt: Date;
-  private readonly _updatedAt: Date;
+  @ApiProperty({
+    type: UUID,
+    description: "Unique identifier for the credential",
+  })
+  readonly id: UUID;
+
+  @ApiProperty({
+    type: UUID,
+    description:
+      "Unique identifier for the user associated with the credential",
+  })
+  readonly userId: UUID;
+
+  @ApiProperty({
+    type: EmailAddress,
+    description: "Email address associated with the credential",
+  })
+  readonly email: EmailAddress;
+
+  @ApiProperty({
+    type: String,
+    description: "Hashed password for the credential",
+  })
+  readonly passwordHash: string;
+
+  @ApiProperty({
+    type: Date,
+    description: "Timestamp when the credential was created",
+  })
+  readonly createdAt: Date;
+
+  @ApiProperty({
+    type: Date,
+    description: "Timestamp when the credential was last updated",
+  })
+  readonly updatedAt: Date;
 
   constructor(data: CredentialDto) {
-    this._id = UUIDFactory.from(data.id);
-    this._userId = UUIDFactory.from(data.userId);
-    this._email = EmailFactory.from(data.email);
-    this._passwordHash = data.passwordHash;
-    this._createdAt = data.createdAt;
-    this._updatedAt = data.updatedAt;
-  }
-
-  get id(): UUID {
-    return this._id;
-  }
-
-  get userId(): UUID {
-    return this._userId;
-  }
-
-  get email(): EmailAddress {
-    return this._email;
-  }
-
-  get passwordHash(): string {
-    return this._passwordHash;
-  }
-
-  get createdAt(): Date {
-    return this._createdAt;
-  }
-
-  get updatedAt(): Date {
-    return this._updatedAt;
+    this.id = UUIDFactory.from(data.id);
+    this.userId = UUIDFactory.from(data.userId);
+    this.email = EmailFactory.from(data.email);
+    this.passwordHash = data.passwordHash;
+    this.createdAt = data.createdAt;
+    this.updatedAt = data.updatedAt;
   }
 }

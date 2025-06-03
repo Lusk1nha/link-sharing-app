@@ -5,8 +5,12 @@ import { Test } from "@nestjs/testing";
 import { PrismaService } from "src/common/prisma/prisma.service";
 import { faker } from "@faker-js/faker/.";
 
-import { generateCredentialMock } from "./mocks/credential.mock";
+import {
+  generateCredentialMock,
+  generateOneCredentialMock,
+} from "./mocks/credential.mock";
 import { EmailFactory } from "src/common/entities/email/email.factory";
+import { CredentialModel } from "./dto/credentials.model";
 
 const credentialsMock = generateCredentialMock(5);
 
@@ -38,7 +42,9 @@ describe("CredentialsRepository", () => {
         credentialsRepository.getByEmailOrThrow(email);
 
       // Assert
-      await expect(findCredentialByEmail()).resolves.toBe(mockedCredential);
+      await expect(findCredentialByEmail()).resolves.toStrictEqual(
+        new CredentialModel(mockedCredential),
+      );
     });
 
     it("should return null if credential not found", async () => {
@@ -58,14 +64,7 @@ describe("CredentialsRepository", () => {
   describe("createCredential", () => {
     it("should create credential", async () => {
       // Arrange
-      const mockedCredential = {
-        id: faker.string.uuid(),
-        userId: faker.string.uuid(),
-        email: faker.internet.email(),
-        passwordHash: faker.string.alphanumeric(64),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const mockedCredential = generateOneCredentialMock();
       prismaService.credential.create.mockResolvedValue(mockedCredential);
 
       // Act
@@ -84,7 +83,9 @@ describe("CredentialsRepository", () => {
         });
 
       // Assert
-      await expect(createCredential()).resolves.toBe(mockedCredential);
+      await expect(createCredential()).resolves.toStrictEqual(
+        new CredentialModel(mockedCredential),
+      );
     });
   });
 });
