@@ -3,6 +3,7 @@ import { AuthProvidersRepository } from "./auth-providers.repository";
 import { UUID } from "src/common/entities/uuid/uuid.entity";
 import { AuthProviderModel, AuthProviderType } from "./dto/auth-provider.model";
 import { UUIDFactory } from "src/common/entities/uuid/uuid.factory";
+import { CreateAuthProviderDto } from "./dto/auth-provider.dto";
 
 @Injectable()
 export class AuthProvidersService {
@@ -16,15 +17,19 @@ export class AuthProvidersService {
     return await this.repository.getByUserId(userId);
   }
 
-  async createAuthProvider(userId: UUID, type: AuthProviderType) {
+  async createAuthProvider(
+    userId: UUID,
+    payload: CreateAuthProviderDto,
+  ): Promise<AuthProviderModel> {
     const id = UUIDFactory.create();
+    const type = payload.type;
 
     const authProvider = await this.repository.create({
       data: {
-        id: id.toString(),
+        id: id.value(),
         user: {
           connect: {
-            id: userId.toString(),
+            id: userId.value(),
           },
         },
         type,
@@ -32,7 +37,7 @@ export class AuthProvidersService {
     });
 
     this.logger.log(
-      `AuthProvider created for user ${userId.toString()} with type ${type}`,
+      `AuthProvider created | userId=${userId.value()} | type=${type}`,
     );
 
     return authProvider;

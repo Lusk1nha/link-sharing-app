@@ -8,6 +8,7 @@ import { CredentialModel } from "./dto/credentials.model";
 import { CreateCredentialDto } from "./dto/credentials.dto";
 import { EmailFactory } from "src/common/entities/email/email.factory";
 import { UUIDFactory } from "src/common/entities/uuid/uuid.factory";
+import { CredentialsHasherService } from "./credentials-hasher.service";
 
 describe("CredentialsService", () => {
   let credentialsService: CredentialsService;
@@ -15,7 +16,11 @@ describe("CredentialsService", () => {
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [CredentialsRepository, CredentialsService],
+      providers: [
+        CredentialsRepository,
+        CredentialsService,
+        CredentialsHasherService,
+      ],
     })
       .overrideProvider(CredentialsRepository)
       .useValue(mockDeep<CredentialsRepository>())

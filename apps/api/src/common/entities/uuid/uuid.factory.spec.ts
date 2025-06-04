@@ -7,14 +7,14 @@ describe("UUIDFactory", () => {
   it("should create a new UUID instance", () => {
     const uuid = UUIDFactory.create();
     expect(uuid).toBeInstanceOf(UUID);
-    expect(UUID.isValid(uuid.toString())).toBe(true);
+    expect(UUID.isValid(uuid.value())).toBe(true);
   });
 
   it("should create a UUID instance from a valid UUID string", () => {
     const validUUID = faker.string.uuid();
     const uuid = UUIDFactory.from(validUUID);
     expect(uuid).toBeInstanceOf(UUID);
-    expect(uuid.toString()).toBe(validUUID);
+    expect(uuid.value()).toBe(validUUID);
   });
 
   it("should throw an error when creating a UUID from an invalid string", () => {

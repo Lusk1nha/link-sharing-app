@@ -21,7 +21,7 @@ export class AuthProvidersRepository implements IAuthProvidersRepository {
   async getByUserId(userId: UUID): Promise<AuthProviderModel[] | null> {
     const response = await this.prisma.authProvider.findMany({
       where: {
-        userId: userId.toString(),
+        userId: userId.value(),
       },
     });
 

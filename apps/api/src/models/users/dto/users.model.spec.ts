@@ -19,7 +19,7 @@ describe("Users Model", () => {
 
     expect(user).toBeInstanceOf(UserModel);
     expect(user.id).toBeInstanceOf(UUID);
-    expect(user.id.toString()).toBe(validData.id);
+    expect(user.id.value()).toBe(validData.id);
     expect(user.active).toBe(validData.active);
     expect(user.createdAt).toBe(createdAt);
     expect(user.updatedAt).toBe(updatedAt);

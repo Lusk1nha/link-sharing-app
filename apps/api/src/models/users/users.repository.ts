@@ -30,7 +30,7 @@ export class UsersRepository implements IUserRepository {
 
   async getUserById(id: UUID): Promise<UserModel | null> {
     const user = await this.prisma.user.findUnique({
-      where: { id: id.toString() },
+      where: { id: id.value() },
     });
 
     if (!user) {

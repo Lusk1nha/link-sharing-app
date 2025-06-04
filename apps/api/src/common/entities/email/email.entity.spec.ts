@@ -8,7 +8,7 @@ describe("EmailAddress", () => {
     const email = new EmailAddress(validEmail);
 
     expect(email).toBeInstanceOf(EmailAddress);
-    expect(email.toString()).toBe(validEmail);
+    expect(email.value()).toBe(validEmail);
   });
 
   it("should throw an error for an invalid email format", () => {

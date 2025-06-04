@@ -7,12 +7,12 @@ describe("UUID Entity", () => {
     const validUUID = faker.string.uuid();
     const uuid = new UUID(validUUID);
     expect(uuid).toBeInstanceOf(UUID);
-    expect(uuid.toString()).toBe(validUUID);
+    expect(uuid.value()).toBe(validUUID);
   });
 
   it("should generate a new UUID instance when no value is provided", () => {
     const uuid = UUID.generate();
-    expect(UUID.isValid(uuid.toString())).toBe(true);
+    expect(UUID.isValid(uuid.value())).toBe(true);
   });
 
   it("should throw an error for an invalid UUID", () => {

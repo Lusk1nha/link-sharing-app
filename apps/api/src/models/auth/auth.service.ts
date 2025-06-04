@@ -9,12 +9,14 @@ import {
 } from "./dto/auth.errors";
 import { AuthProvidersService } from "../auth-providers/auth-providers.service";
 import { CredentialModel } from "../credentials/dto/credentials.model";
+import { SessionsService } from "../sessions/sessions.service";
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
+    private readonly sessionsService: SessionsService,
     private readonly usersService: UsersService,
     private readonly credentialsService: CredentialsService,
     private readonly authProvidersService: AuthProvidersService,
@@ -25,9 +27,10 @@ export class AuthService {
 
     const user = await this.createUserWithCredentials(email, password);
 
-    this.logger.log(
-      `User registered with email: ${email.toString()} and ID: ${user.id.toString()}`,
-    );
+    const userId = user.id.value();
+    const emailStr = email.value();
+
+    this.logger.log(`User registered | email=${emailStr}, id=${userId}`);
 
     return user;
   }
@@ -35,17 +38,17 @@ export class AuthService {
   async signIn(email: EmailAddress, password: string) {
     const credential = await this.getCredentialByEmail(email);
 
-    await this.validatePassword(credential.email, password);
+    await this.validatePassword(credential, password);
 
     const user = await this.usersService.getUserByIdOrThrow(credential.userId);
+    const session = await this.sessionsService.generateTokenByUser(user);
 
-    this.logger.log(
-      `User signed in with email: ${email.toString()} and ID: ${user.id.toString()}`,
-    );
+    const userId = user.id.value();
+    const emailStr = email.value();
 
-    return {
-      user,
-    };
+    this.logger.log(`User login | email=${emailStr}, id=${userId}`);
+
+    return session;
   }
 
   private async createUserWithCredentials(
@@ -53,13 +56,11 @@ export class AuthService {
     password: string,
   ): Promise<UserModel> {
     const user = await this.usersService.createUser();
+    const type = "CREDENTIALS";
 
     await Promise.all([
-      await this.credentialsService.createCredential(user.id, {
-        email,
-        password,
-      }),
-      this.authProvidersService.createAuthProvider(user.id, "CREDENTIALS"),
+      this.credentialsService.createCredential(user.id, { email, password }),
+      this.authProvidersService.createAuthProvider(user.id, { type }),
     ]);
 
     return user;
@@ -78,14 +79,20 @@ export class AuthService {
     return credential;
   }
 
-  private async validatePassword(email: EmailAddress, password: string) {
-    const isValid = await this.credentialsService.validatePassword(
-      email,
+  private async validatePassword(
+    credential: CredentialModel,
+    password: string,
+  ) {
+    const email = credential.email.value();
+    const passwordHash = credential.passwordHash;
+
+    const isValid = await this.credentialsService.validatePasswordHash(
       password,
+      passwordHash,
     );
 
     if (!isValid) {
-      this.logger.warn(`Invalid credentials for email: ${email.toString()}`);
+      this.logger.warn(`Invalid password | email=${email}`);
       throw new AuthInvalidCredentialsException();
     }
   }
@@ -96,7 +103,7 @@ export class AuthService {
 
     if (existingUser) {
       this.logger.warn(
-        `Attempt to register with an already used email: ${email.toString()}`,
+        `Attempt to register existing email | email=${email.value()}`,
       );
       throw new AuthEmailAlreadyInUseException();
     }

@@ -4,6 +4,8 @@ import { ConfigService } from "@nestjs/config";
 import { Logger, ValidationPipe } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
+import * as cookieParser from "cookie-parser";
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
@@ -19,6 +21,8 @@ async function bootstrap() {
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });
+
+  app.use(cookieParser());
 
   app.setGlobalPrefix("api/v1");
   app.useGlobalPipes(

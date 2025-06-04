@@ -5,13 +5,17 @@ import { Injectable, Logger } from "@nestjs/common";
 import { UUIDFactory } from "src/common/entities/uuid/uuid.factory";
 import { UUID } from "src/common/entities/uuid/uuid.entity";
 import { CreateCredentialDto } from "./dto/credentials.dto";
-import { comparePassword, hashPassword } from "src/helpers/hash";
+
+import { CredentialsHasherService } from "./credentials-hasher.service";
 
 @Injectable()
 export class CredentialsService {
   private readonly logger = new Logger(CredentialsService.name);
 
-  constructor(private readonly repository: CredentialsRepository) {}
+  constructor(
+    private readonly repository: CredentialsRepository,
+    private readonly hasher: CredentialsHasherService,
+  ) {}
 
   async getCredentialByEmailOrThrow(
     email: EmailAddress,
@@ -32,36 +36,32 @@ export class CredentialsService {
     payload: CreateCredentialDto,
   ): Promise<CredentialModel> {
     const id = UUIDFactory.create();
-    const passwordHash = hashPassword(payload.password);
+    const passwordHash = await this.hasher.hash(payload.password);
 
     const credential = await this.repository.create({
       data: {
-        id: id.toString(),
-        email: payload.email.toString(),
+        id: id.value(),
+        email: payload.email.value(),
         passwordHash,
         user: {
           connect: {
-            id: userId.toString(),
+            id: userId.value(),
           },
         },
       },
     });
 
     this.logger.log(
-      `Credential created | userId=${userId.toString()} | email=${payload.email.toString()}`,
+      `Credential created | userId=${userId.value()} | email=${payload.email.value()}`,
     );
 
     return credential;
   }
 
-  async validatePassword(
-    email: EmailAddress,
+  async validatePasswordHash(
     password: string,
+    passwordHash: string,
   ): Promise<boolean> {
-    const credentials = await this.getCredentialByEmailOrThrow(email);
-
-    const isValid = await comparePassword(password, credentials.passwordHash);
-
-    return isValid;
+    return await this.hasher.compare(password, passwordHash);
   }
 }

@@ -22,11 +22,11 @@ export class UsersService {
 
     const user = await this.repository.create({
       data: {
-        id: id.toString(),
+        id: id.value(),
       },
     });
 
-    this.logger.log(`User created with ID: ${id.toString()}`);
+    this.logger.log(`User created | id=${id.value()}`);
 
     return user;
   }

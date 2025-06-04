@@ -26,47 +26,37 @@ export class CredentialsRepository implements ICredentialsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async getByEmail(email: EmailAddress): Promise<CredentialModel | null> {
-    const response = await this.prisma.credential.findUnique({
-      where: {
-        email: email.toString(),
-      },
-    });
-
-    if (!response) {
-      return null;
-    }
-
-    return new CredentialModel(response);
+    const response = await this.findByEmail(email);
+    return response ? new CredentialModel(response) : null;
   }
 
   async getByEmailOrThrow(email: EmailAddress): Promise<CredentialModel> {
-    const credential = await this.getByEmail(email);
-
-    if (!credential) {
+    const result = await this.getByEmail(email);
+    if (!result) {
       throw new NotFoundCredentialException();
     }
-
-    return credential;
+    return result;
   }
 
   async create(params: CreateCredentialParams): Promise<CredentialModel> {
-    const { data } = params;
-
-    const response = await this.prisma.credential.create({
-      data,
-    });
-
+    const response = await this.prisma.credential.create({ data: params.data });
     return new CredentialModel(response);
   }
 
   async update(params: UpdateCredentialParams): Promise<CredentialModel> {
-    const { data, where } = params;
-
     const response = await this.prisma.credential.update({
-      data,
-      where,
+      data: params.data,
+      where: params.where,
     });
-
     return new CredentialModel(response);
+  }
+
+  // 🔒 Private helper
+  private async findByEmail(
+    email: EmailAddress,
+  ): Promise<CredentialDto | null> {
+    return this.prisma.credential.findUnique({
+      where: { email: email.value() },
+    });
   }
 }

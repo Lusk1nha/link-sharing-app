@@ -27,7 +27,7 @@ export class UUID {
    * Compares this UUID with another UUID instance.
    */
   public equals(other: UUID): boolean {
-    return this.value === other.value;
+    return this.value() === other.value();
   }
 
   /**

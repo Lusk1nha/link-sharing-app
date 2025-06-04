@@ -34,7 +34,7 @@ describe("AuthProvidersRepository", () => {
       const result = await authProvidersRepository.getByUserId(userId);
 
       expect(prismaService.authProvider.findMany).toHaveBeenCalledWith({
-        where: { userId: userId.toString() },
+        where: { userId: userId.value() },
       });
 
       expect(result).toStrictEqual(

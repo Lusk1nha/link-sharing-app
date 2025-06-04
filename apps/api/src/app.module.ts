@@ -5,7 +5,7 @@ import { UsersModule } from "./models/users/users.module";
 import { CredentialsModule } from "./models/credentials/credentials.module";
 import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "./models/auth/auth.module";
-import { SessionModule } from "./models/session/session.module";
+import { SessionsModule } from "./models/sessions/sessions.module";
 import { AuthProvidersModule } from "./models/auth-providers/auth-providers.module";
 
 @Module({
@@ -14,7 +14,7 @@ import { AuthProvidersModule } from "./models/auth-providers/auth-providers.modu
     UsersModule,
     CredentialsModule,
     AuthModule,
-    SessionModule,
+    SessionsModule,
     AuthProvidersModule,
   ],
   controllers: [AppController],

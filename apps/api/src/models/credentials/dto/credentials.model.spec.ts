@@ -22,8 +22,8 @@ describe("CredentialModel", () => {
     expect(credential).toBeInstanceOf(CredentialModel);
     expect(credential.id).toBeInstanceOf(UUID);
     expect(credential.userId).toBeInstanceOf(UUID);
-    expect(credential.id.toString()).toBe(validData.id);
-    expect(credential.userId.toString()).toBe(validData.userId);
+    expect(credential.id.value()).toBe(validData.id);
+    expect(credential.userId.value()).toBe(validData.userId);
     expect(credential.createdAt).toBe(createdAt);
     expect(credential.updatedAt).toBe(updatedAt);
   });

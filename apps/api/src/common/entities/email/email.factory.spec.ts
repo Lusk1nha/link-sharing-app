@@ -10,7 +10,7 @@ describe("EmailFactory", () => {
 
     const email = EmailFactory.from(validEmail);
     expect(email).toBeInstanceOf(EmailAddress);
-    expect(email.toString()).toBe(validEmail);
+    expect(email.value()).toBe(validEmail);
   });
 
   it("should throw an error when creating an EmailAddress from an invalid email string", () => {

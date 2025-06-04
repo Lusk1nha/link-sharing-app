@@ -39,7 +39,7 @@ describe("CredentialsRepository", () => {
       const result = await credentialsRepository.getByEmailOrThrow(email);
 
       expect(prismaService.credential.findUnique).toHaveBeenCalledWith({
-        where: { email: email.toString() },
+        where: { email: email.value() },
       });
       expect(result).toStrictEqual(new CredentialModel(mockedCredential));
     });
@@ -53,7 +53,7 @@ describe("CredentialsRepository", () => {
       const result = await credentialsRepository.getByEmail(email);
 
       expect(prismaService.credential.findUnique).toHaveBeenCalledWith({
-        where: { email: email.toString() },
+        where: { email: email.value() },
       });
       expect(result).toBeNull();
     });
