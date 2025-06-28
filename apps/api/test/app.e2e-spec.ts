@@ -1,25 +1,59 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { INestApplication } from "@nestjs/common";
-import * as request from "supertest";
-import { App } from "supertest/types";
-import { AppModule } from "./../src/app.module";
+import * as request from 'supertest';
 
-describe("AppController (e2e)", () => {
-  let app: INestApplication<App>;
+import { Test, TestingModule } from '@nestjs/testing';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
+import { AppModule } from 'src/app/app.module';
+import { ConfigService } from '@nestjs/config';
 
-  beforeEach(async () => {
+describe('AppController (e2e)', () => {
+  let app: INestApplication;
+
+  beforeAll(async () => {
+    process.env.APP_NAME = 'MyApp';
+    process.env.APP_DESCRIPTION = 'This is my app';
+    process.env.APP_VERSION = '2.3.4';
+    process.env.NODE_ENV = 'test';
+    process.env.DOCS_URL = 'http://test.docs.local';
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(ConfigService)
+      .useValue({
+        get: (key: string, defaultValue?: string) => {
+          if (defaultValue !== undefined) {
+            return process.env[key] ?? defaultValue;
+          }
+
+          if (process.env[key] === undefined) {
+            return undefined;
+          }
+
+          return process.env[key];
+        },
+      })
+      .compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
     await app.init();
   });
 
-  it("/ (GET)", () => {
-    return request(app.getHttpServer())
-      .get("/")
-      .expect(200)
-      .expect("Hello World!");
+  afterAll(async () => await app.close());
+
+  it('GET / returns the proper index payload', async () => {
+    const expected = {
+      name: 'MyApp',
+      description: 'This is my app',
+      version: '2.3.4',
+      environment: 'test',
+      authors: ['Lucas Pedro da Hora <lucaspedro517@gmail.com>'],
+      docsUrl: 'http://test.docs.local',
+    };
+
+    await request(app.getHttpServer())
+      .get('/')
+      .expect(HttpStatus.OK)
+      .expect((res) => expect(res.body).toEqual(expected));
   });
 });

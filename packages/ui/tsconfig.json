@@ -1,5 +1,10 @@
 {
   "extends": "@link-sharing-app/typescript-config/react-library.json",
-  "include": [".", ".eslintrc.js"],
+  "compilerOptions": {
+    "lib": ["dom", "ES2015"],
+    "sourceMap": true,
+    "types": ["jest", "node"]
+  },
+  "include": ["."],
   "exclude": ["dist", "build", "node_modules"]
 }

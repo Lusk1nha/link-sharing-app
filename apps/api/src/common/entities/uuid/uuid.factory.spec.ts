@@ -1,39 +1,34 @@
-import { faker } from "@faker-js/faker/.";
-import { UUID } from "./uuid.entity";
-import { UUIDFactory } from "./uuid.factory";
-import { InvalidUUIDException } from "./uuid.errors";
+import { faker } from '@faker-js/faker';
+import { UUIDFactory } from './uuid.factory';
+import { InvalidUuidException } from './uuid.errors';
+import { UUID } from './uuid.entity';
 
-describe("UUIDFactory", () => {
-  it("should create a new UUID instance", () => {
-    const uuid = UUIDFactory.create();
-    expect(uuid).toBeInstanceOf(UUID);
-    expect(UUID.isValid(uuid.value())).toBe(true);
+describe(UUIDFactory.name, () => {
+  it('should be defined', () => {
+    expect(UUIDFactory).toBeDefined();
   });
 
-  it("should create a UUID instance from a valid UUID string", () => {
-    const validUUID = faker.string.uuid();
-    const uuid = UUIDFactory.from(validUUID);
-    expect(uuid).toBeInstanceOf(UUID);
-    expect(uuid.value()).toBe(validUUID);
+  describe('Using UUIDFactory.from', () => {
+    it('should create a valid UUID', () => {
+      const validUUID = faker.string.uuid();
+      const uuid = UUIDFactory.from(validUUID);
+      expect(uuid).toBeDefined();
+      expect(uuid.value).toBe(validUUID);
+    });
+
+    it('should throw an error for an invalid UUID', () => {
+      const invalidUUID = 'invalid-uuid';
+      expect(() => UUIDFactory.from(invalidUUID)).toThrow(
+        new InvalidUuidException(),
+      );
+    });
   });
 
-  it("should throw an error when creating a UUID from an invalid string", () => {
-    const invalidUUID = "invalid-uuid-format";
-    expect(() => UUIDFactory.from(invalidUUID)).toThrow(
-      new InvalidUUIDException(invalidUUID),
-    );
-  });
-
-  it("should compare two equal UUIDs as equal", () => {
-    const id = faker.string.uuid();
-    const uuid1 = new UUID(id);
-    const uuid2 = new UUID(id);
-    expect(uuid1.equals(uuid2)).toBe(true);
-  });
-
-  it("should compare two different UUIDs as not equal", () => {
-    const uuid1 = UUIDFactory.create();
-    const uuid2 = UUIDFactory.create();
-    expect(uuid1.equals(uuid2)).toBe(false);
+  describe('Using UUIDFactory.create', () => {
+    it('should create a valid UUID', () => {
+      const uuid = UUIDFactory.create();
+      expect(uuid).toBeDefined();
+      expect(UUID.isValid(uuid.value)).toBe(true);
+    });
   });
 });

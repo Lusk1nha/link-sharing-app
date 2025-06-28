@@ -1,24 +1,32 @@
-import { faker } from "@faker-js/faker/.";
-import { UUID } from "./uuid.entity";
-import { InvalidUUIDException } from "./uuid.errors";
+import { UUID } from './uuid.entity';
+import { InvalidUuidException } from './uuid.errors';
 
-describe("UUID Entity", () => {
-  it("should create a new UUID instance with a valid UUID", () => {
-    const validUUID = faker.string.uuid();
-    const uuid = new UUID(validUUID);
-    expect(uuid).toBeInstanceOf(UUID);
-    expect(uuid.value()).toBe(validUUID);
+describe(UUID.name, () => {
+  it('should be defined', () => {
+    expect(UUID).toBeDefined();
   });
 
-  it("should generate a new UUID instance when no value is provided", () => {
-    const uuid = UUID.generate();
-    expect(UUID.isValid(uuid.value())).toBe(true);
+  describe('Valid UUIDs', () => {
+    it('should create a valid UUID', () => {
+      const validUUID = '123e4567-e89b-12d3-a456-426614174000';
+      const uuid = new UUID(validUUID);
+      expect(uuid).toBeDefined();
+      expect(uuid.value).toBe(validUUID);
+    });
   });
 
-  it("should throw an error for an invalid UUID", () => {
-    const invalidUUID = "invalid-uuid-format";
-    expect(() => new UUID(invalidUUID)).toThrow(
-      new InvalidUUIDException(invalidUUID),
-    );
+  describe('Invalid UUIDs', () => {
+    it('should throw an error for an invalid UUID', () => {
+      const invalidUUID = 'invalid-uuid';
+      expect(() => new UUID(invalidUUID)).toThrow(new InvalidUuidException());
+    });
+
+    it('should throw an error for a non-string UUID', () => {
+      expect(() => new UUID(123 as any)).toThrow(new InvalidUuidException());
+    });
+
+    it('should throw an error for an empty UUID', () => {
+      expect(() => new UUID('')).toThrow(new InvalidUuidException());
+    });
   });
 });

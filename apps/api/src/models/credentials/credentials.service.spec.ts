@@ -1,97 +1,148 @@
-import { CredentialsService } from "./credentials.service";
-import { Test } from "@nestjs/testing";
-import { DeepMockProxy, mockDeep } from "jest-mock-extended";
+import { PrismaService } from 'src/common/database/database.service';
+import { CredentialsService } from './credentials.service';
+import { Test, TestingModule } from '@nestjs/testing';
+import { UUIDFactory } from 'src/common/entities/uuid/uuid.factory';
+import { faker } from '@faker-js/faker';
+import { generateSingleMockCredential } from './__mock__/credentials.mock';
 
-import { generateOneCredentialMock } from "./mocks/credential.mock";
-import { CredentialsRepository } from "./credentials.repository";
-import { CredentialModel } from "./dto/credentials.model";
-import { CreateCredentialDto } from "./dto/credentials.dto";
-import { EmailFactory } from "src/common/entities/email/email.factory";
-import { UUIDFactory } from "src/common/entities/uuid/uuid.factory";
-import { CredentialsHasherService } from "./credentials-hasher.service";
+import { CredentialEntity } from './domain/credential.entity';
+import { CredentialMapper } from './domain/credential.mapper';
+import { CredentialAlreadyExistsForUserException } from './credentials.errors';
 
-describe("CredentialsService", () => {
-  let credentialsService: CredentialsService;
-  let credentialsRepository: DeepMockProxy<CredentialsRepository>;
+describe(CredentialsService.name, () => {
+  let service: CredentialsService;
+  let prismaService: PrismaService;
 
   beforeEach(async () => {
-    const moduleRef = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       providers: [
-        CredentialsRepository,
         CredentialsService,
-        CredentialsHasherService,
+        {
+          provide: PrismaService,
+          useValue: {
+            credential: {
+              create: jest.fn(),
+              update: jest.fn(),
+              findUnique: jest.fn(),
+              findMany: jest.fn(),
+            },
+          },
+        },
       ],
-    })
-      .overrideProvider(CredentialsRepository)
-      .useValue(mockDeep<CredentialsRepository>())
-      .compile();
+    }).compile();
 
-    credentialsService = moduleRef.get(CredentialsService);
-    credentialsRepository = moduleRef.get(CredentialsRepository);
+    service = module.get<CredentialsService>(CredentialsService);
+    prismaService = module.get<PrismaService>(PrismaService);
   });
 
-  describe("getCredentialByEmailOrThrow", () => {
-    it("should find credential by email", async () => {
-      // Arrange
-      const mockedCredential = new CredentialModel(generateOneCredentialMock());
-      credentialsRepository.getByEmailOrThrow.mockResolvedValue(
-        mockedCredential,
-      );
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+    expect(prismaService).toBeDefined();
+  });
 
-      // Act
-      const findCredentialByEmail = () =>
-        credentialsService.getCredentialByEmailOrThrow(mockedCredential.email);
+  describe('Find Credentials by User ID', () => {
+    it(`should be defined ${CredentialsService.prototype.findByUserId.name}`, () => {
+      expect(service.findByUserId).toBeDefined();
+    });
 
-      // Assert
-      await expect(findCredentialByEmail()).resolves.toStrictEqual(
-        mockedCredential,
-      );
+    it('should return a credential if found for user ID', async () => {
+      const userId = faker.string.uuid();
+      const mockId = faker.string.uuid();
+
+      const credentialFound = generateSingleMockCredential({
+        id: mockId,
+        userId,
+      });
+
+      jest
+        .spyOn(prismaService.credential, 'findUnique')
+        .mockResolvedValue(credentialFound);
+
+      const result = await service.findByUserId(UUIDFactory.from(userId));
+
+      if (!result) {
+        throw new Error('Credential not found');
+      }
+
+      expect(result).toBeDefined();
+      expect(result.id).toEqual(UUIDFactory.from(mockId));
+      expect(result.userId).toEqual(UUIDFactory.from(userId));
+      expect(prismaService.credential.findUnique).toHaveBeenCalledWith({
+        where: { userId },
+      });
+    });
+
+    it('should return null if no credential found for user ID', async () => {
+      const userId = faker.string.uuid();
+      jest
+        .spyOn(prismaService.credential, 'findUnique')
+        .mockResolvedValue(null);
+
+      const result = await service.findByUserId(UUIDFactory.from(userId));
+      expect(result).toBeNull();
     });
   });
 
-  describe("getCredentialByEmail", () => {
-    it("should return null if credential not found", async () => {
-      // Arrange
-      const mockedCredential = new CredentialModel(generateOneCredentialMock());
-      credentialsRepository.getByEmail.mockResolvedValue(null);
-
-      // Act
-      const findCredentialByEmail = () =>
-        credentialsService.getCredentialByEmail(mockedCredential.email);
-
-      // Assert
-      await expect(findCredentialByEmail()).resolves.toBeNull();
+  describe('Create Credentials', () => {
+    it(`should be defined ${CredentialsService.prototype.createCredential.name}`, () => {
+      expect(service.createCredential).toBeDefined();
     });
-  });
 
-  describe("createCredential", () => {
-    it("should create a new credential", async () => {
-      // Arrange
-      const mockedCredential = {
-        ...generateOneCredentialMock(),
-        email: "test@example.com",
-        passwordHash: "teste",
-      };
+    it('should create a new credential for a user', async () => {
+      const mockId = faker.string.uuid();
+      const userId = faker.string.uuid();
+      const passwordHash = faker.string.alphanumeric(64);
 
-      const userId = UUIDFactory.from(mockedCredential.userId);
-      const email = EmailFactory.from(mockedCredential.email);
+      const credentialCreated = generateSingleMockCredential({
+        id: mockId,
+        userId,
+        passwordHash,
+      });
 
-      credentialsRepository.create.mockResolvedValue(
-        new CredentialModel(mockedCredential),
+      const credentialEntity = CredentialEntity.create(
+        UUIDFactory.from(mockId),
+        UUIDFactory.from(userId),
+        passwordHash,
       );
 
-      // Act
-      const createCredentialPayload: CreateCredentialDto = {
-        email,
-        password: "hashed2Password",
-      };
+      jest
+        .spyOn(prismaService.credential, 'create')
+        .mockResolvedValue(credentialCreated);
+      jest
+        .spyOn(prismaService.credential, 'findUnique')
+        .mockResolvedValue(null);
 
-      const createCredential = () =>
-        credentialsService.createCredential(userId, createCredentialPayload);
+      const result = await service.createCredential(credentialEntity);
 
-      // Assert
-      await expect(createCredential()).resolves.toStrictEqual(
-        new CredentialModel(mockedCredential),
+      expect(result).toEqual(CredentialMapper.toDomain(credentialCreated));
+      expect(prismaService.credential.create).toHaveBeenCalledWith({
+        data: {
+          id: mockId,
+          user: {
+            connect: { id: userId },
+          },
+          passwordHash,
+        },
+      });
+    });
+
+    it('should throw an error if credential already exists for user', async () => {
+      const mockId = faker.string.uuid();
+      const userId = faker.string.uuid();
+      const passwordHash = faker.string.alphanumeric(64);
+
+      const credentialEntity = CredentialEntity.create(
+        UUIDFactory.from(mockId),
+        UUIDFactory.from(userId),
+        passwordHash,
+      );
+
+      jest
+        .spyOn(prismaService.credential, 'create')
+        .mockRejectedValue(new CredentialAlreadyExistsForUserException());
+
+      await expect(service.createCredential(credentialEntity)).rejects.toThrow(
+        new CredentialAlreadyExistsForUserException(),
       );
     });
   });

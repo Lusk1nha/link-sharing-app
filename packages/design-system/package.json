@@ -6,6 +6,7 @@
     "**/*.css"
   ],
   "files": [
+    "dist/**",
     "dist"
   ],
   "exports": {
@@ -23,10 +24,14 @@
   },
   "packageManager": "pnpm@10.7.1",
   "devDependencies": {
+    "@link-sharing-app/jest-presets": "workspace:*",
     "@link-sharing-app/eslint-config": "workspace:*",
     "@link-sharing-app/typescript-config": "workspace:*",
     "@types/react": "^19.1.2",
-    "typescript": "^5.8.3"
+    "@jest/globals": "^29.7.0",
+    "jest": "^29.7.0",
+    "typescript": "^5.8.3",
+    "@types/jest": "^29.5.14"
   },
   "dependencies": {
     "@link-sharing-app/utils": "workspace:*",
@@ -34,5 +39,8 @@
     "@tailwindcss/postcss": "^4.1.8",
     "postcss": "^8.5.4",
     "tailwindcss": "^4.1.8"
+  },
+  "jest": {
+    "preset": "@link-sharing-app/jest-presets/node"
   }
 }

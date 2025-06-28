@@ -1,94 +1,114 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { AuthController } from "./auth.controller";
-import { AuthService } from "./auth.service";
-import { faker } from "@faker-js/faker";
-import {
-  LoginPayloadDto,
-  RegisterPayloadDto,
-  RegisterResponseDto,
-} from "./dto/auth.dto";
-import { generateOneUserMock } from "../users/mocks/users.mock";
-import { UserModel } from "../users/dto/users.model";
-import { DeepMockProxy, mockDeep } from "jest-mock-extended";
-import { EmailFactory } from "src/common/entities/email/email.factory";
-import { generateOneSessionMock } from "../sessions/mocks/sessions.mock";
+import { Test, TestingModule } from '@nestjs/testing';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { UserEntity } from '../users/domain/user.entity';
+import { UUIDFactory } from 'src/common/entities/uuid/uuid.factory';
+import { EmailAddressFactory } from 'src/common/entities/email-address/email-address.factory';
+import { faker } from '@faker-js/faker/.';
+import { RegisterUserResponseDto } from './dto/register-user-response.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
+import { UserMapper } from '../users/domain/user.mapper';
+import { generateSingleMockUser } from '../users/__mock__/users.mock';
+import { SessionTokens } from './__types__/auth.types';
+import { TokenMapper } from '../token/domain/token.mapper';
+import { generateSingleMockToken } from '../token/__mock__/token.mock';
+import { LoginUserDto } from './dto/login-user.dto';
 
-describe("AuthController", () => {
-  let authController: AuthController;
-  let authService: DeepMockProxy<AuthService>;
+import { LoginUserResponseDto } from './dto/login-user-response.dto';
+
+describe(AuthController.name, () => {
+  let controller: AuthController;
+  let authService: AuthService;
 
   beforeEach(async () => {
-    const moduleRef: TestingModule = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
         {
           provide: AuthService,
-          useValue: mockDeep<AuthService>(),
+          useValue: {
+            login: jest.fn(),
+            register: jest.fn(),
+          },
         },
       ],
     }).compile();
 
-    authController = moduleRef.get(AuthController);
-    authService = moduleRef.get(AuthService);
-
-    jest.clearAllMocks();
+    controller = module.get<AuthController>(AuthController);
+    authService = module.get<AuthService>(AuthService);
   });
 
-  describe("signUp", () => {
-    it("should register a new user and return it", async () => {
-      // Arrange
-      const registerPayload: RegisterPayloadDto = {
-        email: faker.internet.email(),
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+    expect(authService).toBeDefined();
+  });
+
+  describe('register route', () => {
+    it(`should be defined ${AuthController.prototype.register.name}`, () => {
+      expect(controller.register).toBeDefined();
+    });
+
+    it(`should call ${AuthService.prototype.register.name} when route is called with correct data`, async () => {
+      const mockUserEntity = UserEntity.create(
+        UUIDFactory.create(),
+        EmailAddressFactory.from(faker.internet.email()),
+      );
+
+      const mockResponseDto: RegisterUserResponseDto =
+        new RegisterUserResponseDto(mockUserEntity);
+
+      const mockRequestDto: RegisterUserDto = {
+        email: mockUserEntity.email.value,
         password: faker.internet.password(),
       };
 
-      const { email, password } = registerPayload;
-      const emailEntity = EmailFactory.from(email);
+      jest
+        .spyOn(authService, 'register')
+        .mockImplementationOnce(async () => mockUserEntity);
 
-      const userMock = generateOneUserMock();
-      const userModel = new UserModel(userMock);
+      const result = await controller.register(mockRequestDto);
 
-      authService.signUp.mockResolvedValue(userModel);
-
-      const expectedResponse: RegisterResponseDto = {
-        user: userModel,
-      };
-
-      // Act
-      const result = await authController.register(registerPayload);
-
-      // Assert
-      expect(result).toStrictEqual(expectedResponse);
-      expect(authService.signUp).toHaveBeenCalledTimes(1);
-      expect(authService.signUp).toHaveBeenCalledWith(emailEntity, password);
+      expect(result).toEqual(mockResponseDto);
+      expect(authService.register).toHaveBeenCalledWith(mockRequestDto);
     });
   });
 
-  describe("login", () => {
-    it("should log in a user and return a success message", async () => {
-      // Arrange
-      const loginPayload: LoginPayloadDto = {
+  describe('login route', () => {
+    it(`should be defined ${AuthController.prototype.login.name}`, () => {
+      expect(controller.login).toBeDefined();
+    });
+
+    it(`should call ${AuthService.prototype.login.name} when route is called with correct data`, async () => {
+      const dto: LoginUserDto = {
         email: faker.internet.email(),
         password: faker.internet.password(),
       };
 
-      const { email, password } = loginPayload;
-      const emailEntity = EmailFactory.from(email);
+      const user = UserMapper.toDomain(
+        generateSingleMockUser({
+          email: dto.email,
+        }),
+      );
 
-      const accessToken = generateOneSessionMock();
-      const refreshToken = generateOneSessionMock();
+      const sessionTokens: SessionTokens = {
+        accessToken: TokenMapper.toDomain(generateSingleMockToken()),
+        refreshToken: TokenMapper.toDomain(generateSingleMockToken()),
+      };
 
-      authService.signIn.mockResolvedValue({ accessToken, refreshToken });
+      jest.spyOn(authService, 'login').mockResolvedValueOnce({
+        user: user,
+        accessToken: sessionTokens.accessToken,
+        refreshToken: sessionTokens.refreshToken,
+      });
 
-      const request = { cookie: jest.fn() };
+      const result = await controller.login({ cookie: () => {} }, dto);
 
-      // Act
-      await authController.login(request, loginPayload);
-
-      // Assert
-      expect(authService.signIn).toHaveBeenCalledTimes(1);
-      expect(authService.signIn).toHaveBeenCalledWith(emailEntity, password);
-      expect(request.cookie).toHaveBeenCalledTimes(1);
+      expect(result).toBeDefined();
+      expect(result).toBeInstanceOf(LoginUserResponseDto);
+      expect(result.user).toBeInstanceOf(UserEntity);
+      expect(result.user).toEqual(user);
+      expect(result.accessToken).toEqual(sessionTokens.accessToken.token);
+      expect(authService.login).toHaveBeenCalledWith(dto);
     });
   });
 });

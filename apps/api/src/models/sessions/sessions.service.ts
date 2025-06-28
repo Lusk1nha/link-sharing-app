@@ -1,91 +1,83 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { UserModel } from "../users/dto/users.model";
-import {
-  REDIS_KEYS,
-  TOKEN_CONFIG_KEYS,
-  TOKEN_TYPES,
-} from "./sessions.constants";
+import { Injectable, Logger } from '@nestjs/common';
+import { UserEntity } from '../users/domain/user.entity';
 
-import { SessionsJwtService } from "./sessions-jwt.service";
-import { SessionsHashService } from "./sessions-hash.service";
-import { CacheRedisRepository } from "src/common/redis/cache-redis.repository";
-import { ConfigService } from "@nestjs/config";
+import { TokenService } from '../token/token.service';
+
+import { SessionTokens } from '../auth/__types__/auth.types';
+import { UserJwtPayload } from 'src/common/auth/__types__/auth.types';
+import { InvalidSessionException } from './sessions.errors';
+import { SessionsCacheService } from '../sessions-cache/sessions-cache.service';
 
 @Injectable()
 export class SessionsService {
   private readonly logger = new Logger(SessionsService.name);
-  private readonly refreshTokenExpirationInSeconds: number;
 
   constructor(
-    private readonly jwtService: SessionsJwtService,
-    private readonly hashService: SessionsHashService,
-    private readonly repository: CacheRedisRepository,
-    private readonly configService: ConfigService,
-  ) {
-    this.refreshTokenExpirationInSeconds = this.getRefreshTokenExpiration();
-  }
+    private readonly tokenService: TokenService,
+    private readonly cacheService: SessionsCacheService,
+  ) {}
 
-  async generateTokenByUser(user: UserModel) {
+  async createSession(user: UserEntity): Promise<SessionTokens> {
     const tokens = await this.generateTokens(user);
-    const tokenHash = this.hashService.generateTokenHash(
-      tokens.refreshToken.token,
-    );
+    await this.cacheService.saveSessionInCache(user, tokens.refreshToken);
 
-    await this.saveRefreshToken(user, tokenHash);
     return tokens;
   }
 
-  private async saveRefreshToken(user: UserModel, tokenHash: string) {
-    const refreshTokenKey = this.getRefreshTokenKey(tokenHash);
-    const userTokensKey = this.getUserTokensKey(user.id.value());
+  async revalidateByRefreshToken(
+    user: UserEntity,
+    previousToken: string,
+  ): Promise<SessionTokens> {
+    await this.validateTokenExists(user, previousToken);
+    const tokens = await this.generateTokens(user);
 
-    const userId = user.id.value();
+    await this.cacheService.saveSessionInCache(user, tokens.refreshToken);
+    await this.cacheService.deleteSessionFromCache(previousToken);
 
-    console.log({
-      refreshTokenKey,
-      userTokensKey,
-      userId,
-      tokenHash,
-      expiration: this.refreshTokenExpirationInSeconds,
-    });
-
-    await Promise.all([
-      this.repository.saveData(
-        refreshTokenKey,
-        userId,
-        this.refreshTokenExpirationInSeconds,
-      ),
-      this.repository.addToSet(userTokensKey, tokenHash),
-      this.repository.expireKey(
-        userTokensKey,
-        this.refreshTokenExpirationInSeconds,
-      ),
-    ]);
-
-    this.logger.log(`Saved refresh token | userId=${userId}`);
+    return tokens;
   }
 
-  private getRefreshTokenExpiration(): number {
-    const days = Number(
-      this.configService.get(TOKEN_CONFIG_KEYS.REFRESH_EXPIRATION),
+  async validateRefreshToken(refreshToken: string): Promise<UserJwtPayload> {
+    const payload = await this.tokenService.decodeToken(
+      refreshToken,
+      'refresh',
     );
-    return days * 24 * 60 * 60;
+
+    if (!payload) {
+      throw new InvalidSessionException();
+    }
+
+    return payload;
   }
 
-  private getRefreshTokenKey(tokenHash: string): string {
-    return `${REDIS_KEYS.REFRESH_TOKEN_PREFIX}${tokenHash}`;
+  async revokeByRefreshToken(user: UserEntity, refreshToken: string) {
+    await this.validateTokenExists(user, refreshToken);
+    await this.cacheService.deleteSessionFromCache(refreshToken);
+
+    this.logger.log(`Session invalidated for user ${user.id.value}`);
   }
 
-  private getUserTokensKey(userId: string): string {
-    return `${REDIS_KEYS.USER_TOKENS_PREFIX}${userId}`;
+  private async validateTokenExists(
+    user: UserEntity,
+    token: string,
+  ): Promise<void> {
+    const cachedSession = await this.cacheService.getSessionFromCache(token);
+
+    if (!cachedSession || cachedSession !== user.id.value) {
+      this.logger.error(
+        `[validateTokenExists] Token ownership validation failed for user ${user.id.value}`,
+      );
+      throw new InvalidSessionException();
+    }
   }
 
-  private async generateTokens(user: UserModel) {
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.createToken(user, TOKEN_TYPES.ACCESS),
-      this.jwtService.createToken(user, TOKEN_TYPES.REFRESH),
-    ]);
+  private async generateTokens(user: UserEntity) {
+    const accessToken = await this.tokenService.generateToken(user, 'access');
+    const refreshToken = await this.tokenService.generateToken(user, 'refresh');
 
-    return { accessToken, refreshToken };
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }

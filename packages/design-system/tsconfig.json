@@ -1,5 +1,10 @@
 {
-	"extends": "@link-sharing-app/typescript-config/react-library.json",
-	"include": ["."],
-	"exclude": ["dist", "build", "node_modules"]
+  "extends": "@link-sharing-app/typescript-config/react-library.json",
+  "compilerOptions": {
+    "lib": ["ES2015"],
+    "outDir": "./dist",
+    "types": ["jest"]
+  },
+  "include": ["src"],
+  "exclude": ["dist", "build", "node_modules"]
 }
