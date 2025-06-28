@@ -11,7 +11,7 @@ export class UserMapper {
     return new UserEntity(
       UUIDFactory.from(raw.id),
       EmailAddressFactory.from(raw.email),
-      true,
+      raw.isActive,
       raw.createdAt,
       raw.updatedAt,
     );

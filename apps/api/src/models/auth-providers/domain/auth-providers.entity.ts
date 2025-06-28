@@ -1,12 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { AuthSignInType } from '@prisma/client';
 import { UUID } from 'src/common/entities/uuid/uuid.entity';
 import { InvalidUuidException } from 'src/common/entities/uuid/uuid.errors';
 
-export class CredentialEntity {
+export class AuthProviderEntity {
   constructor(
     id: UUID,
     userId: UUID,
-    passwordHash: string,
+    providerType: AuthSignInType,
+    providerId: string,
     createdAt?: Date,
     updatedAt?: Date,
   ) {
@@ -20,40 +22,45 @@ export class CredentialEntity {
 
     this.id = id;
     this.userId = userId;
-    this.passwordHash = passwordHash;
+    this.providerType = providerType;
+    this.providerId = providerId;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
   }
 
   @ApiProperty({
-    description: 'Unique identifier of the credential',
+    description: 'Unique identifier of the auth provider',
     type: UUID,
-    required: true,
   })
   public readonly id: UUID;
 
   @ApiProperty({
-    description: 'Unique identifier of the user associated with the credential',
+    description:
+      'Unique identifier of the user associated with the auth provider',
     type: UUID,
-    required: true,
   })
   public readonly userId: UUID;
 
   @ApiProperty({
-    description: 'Hashed password for the credential',
-    type: String,
-    required: true,
+    description: 'Type of the authentication provider',
+    enum: AuthSignInType,
   })
-  public readonly passwordHash: string;
+  public readonly providerType: AuthSignInType;
 
   @ApiProperty({
-    description: 'Creation date of the credential entity',
+    description: 'Unique identifier for the provider account',
+    type: String,
+  })
+  public readonly providerId: string;
+
+  @ApiProperty({
+    description: 'Creation date of the auth provider entity',
     type: Date,
   })
   public readonly createdAt?: Date;
 
   @ApiProperty({
-    description: 'Last update date of the credential entity',
+    description: 'Last update date of the auth provider entity',
     type: Date,
   })
   public readonly updatedAt?: Date;
@@ -61,8 +68,9 @@ export class CredentialEntity {
   static create(
     id: UUID,
     userId: UUID,
-    passwordHash: string,
-  ): CredentialEntity {
-    return new CredentialEntity(id, userId, passwordHash);
+    providerType: AuthSignInType,
+    providerId: string,
+  ): AuthProviderEntity {
+    return new AuthProviderEntity(id, userId, providerType, providerId);
   }
 }

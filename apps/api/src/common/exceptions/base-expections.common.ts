@@ -19,4 +19,16 @@ export abstract class BaseHttpException
   getCode(): string {
     return this.code;
   }
+
+  getMessage(): string {
+    if (typeof this.getResponse() === 'string') {
+      return this.getResponse() as string;
+    }
+
+    if (typeof this.getResponse() === 'object' && this.getResponse() !== null) {
+      return (this.getResponse() as Record<string, any>).message || '';
+    }
+
+    return '';
+  }
 }
