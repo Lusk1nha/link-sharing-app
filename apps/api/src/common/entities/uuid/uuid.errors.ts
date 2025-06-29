@@ -1,17 +1,30 @@
-import { HttpStatus } from "@nestjs/common";
-import { BaseHttpException } from "src/common/exceptions/exceptions.common";
+import { HttpStatus } from '@nestjs/common';
+import { BaseHttpException } from 'src/common/exceptions/base-expections.common';
 
-export class InvalidUUIDException extends BaseHttpException {
-  constructor(value: string) {
-    const message = `The provided value "${value}" is not a valid UUID.`;
-
+export class InvalidUuidException extends BaseHttpException {
+  constructor(error?: string) {
     super(
       {
-        message,
-        code: "INVALID_UUID",
+        message: error || 'Invalid UUID format.',
+        code: 'INVALID_UUID',
+        status: HttpStatus.BAD_REQUEST,
       },
       HttpStatus.BAD_REQUEST,
-      "INVALID_UUID",
+      'INVALID_UUID',
+    );
+  }
+}
+
+export class EmptyUuidParameterException extends BaseHttpException {
+  constructor() {
+    super(
+      {
+        message: 'UUID parameter cannot be empty.',
+        code: 'EMPTY_UUID_PARAMETER',
+        status: HttpStatus.BAD_REQUEST,
+      },
+      HttpStatus.BAD_REQUEST,
+      'EMPTY_UUID_PARAMETER',
     );
   }
 }

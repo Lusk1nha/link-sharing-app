@@ -1,4 +1,4 @@
-import { UUID } from "./uuid.entity";
+import { UUID } from './uuid.entity';
 
 export class UUIDFactory {
   static create(): UUID {

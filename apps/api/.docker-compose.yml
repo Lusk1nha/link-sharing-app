@@ -1,0 +1,12 @@
+services:
+  redis:
+    container_name: auth-caching
+    image: "redis:latest"
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    volumes:
+      - redis:/data
+
+volumes:
+  redis:
+    driver: local

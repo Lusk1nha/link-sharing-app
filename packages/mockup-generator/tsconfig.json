@@ -1,5 +1,10 @@
 {
-	"extends": "@link-sharing-app/typescript-config/base.json",
-	"include": ["."],
-	"exclude": ["dist", "build", "node_modules"]
+  "extends": "@link-sharing-app/typescript-config/base.json",
+  "compilerOptions": {
+    "lib": ["ES2015"],
+    "outDir": "./dist",
+    "types": ["jest"]
+  },
+  "include": ["."],
+  "exclude": ["node_modules", "dist"]
 }

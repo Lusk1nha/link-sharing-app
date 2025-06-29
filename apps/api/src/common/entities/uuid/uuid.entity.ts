@@ -1,33 +1,34 @@
-import { v4 as uuidv4, validate as isValidUUID } from "uuid";
-import { InvalidUUIDException } from "./uuid.errors";
-import { ApiProperty } from "@nestjs/swagger";
+import { v4 as uuidv4, validate as isValidUUID } from 'uuid';
+import { InvalidUuidException } from './uuid.errors';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UUID {
   @ApiProperty({
+    description: 'The UUID value',
     type: String,
-    description: "A universally unique identifier (UUID) string.",
-    example: "123e4567-e89b-12d3-a456-426614174000",
-    format: "uuid",
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    required: true,
   })
-  private readonly value: string;
+  private readonly _value: string;
 
   constructor(value?: string) {
-    this.value = value ? UUID.validateOrThrow(value) : UUID.generateUUID();
+    this._value =
+      value !== undefined ? UUID.ensureValid(value) : UUID.generateRaw();
   }
 
   /**
    * Returns the UUID value as a string.
    * @returns The UUID value.
    */
-  public toString(): string {
-    return this.value;
+  public get value(): string {
+    return this._value;
   }
 
   /**
-   * Compares this UUID with another UUID instance.
+   * Validates if a given string is a valid UUID format.
    */
-  public equals(other: UUID): boolean {
-    return this.value === other.value;
+  public static isValid(value: string): boolean {
+    return typeof value === 'string' && isValidUUID(value.trim());
   }
 
   /**
@@ -37,22 +38,19 @@ export class UUID {
     return new UUID();
   }
 
-  /**
-   * Validates if a given string is a valid UUID format.
-   */
-  public static isValid(value: string): boolean {
-    return isValidUUID(value);
-  }
-
-  private static validateOrThrow(value: string): string {
-    if (!UUID.isValid(value)) {
-      throw new InvalidUUIDException(value);
+  private static ensureValid(value: string): string {
+    if (typeof value !== 'string' || !value.trim()) {
+      throw new InvalidUuidException();
     }
 
-    return value;
+    if (!UUID.isValid(value)) {
+      throw new InvalidUuidException();
+    }
+
+    return value.trim();
   }
 
-  private static generateUUID(): string {
+  private static generateRaw(): string {
     return uuidv4();
   }
 }

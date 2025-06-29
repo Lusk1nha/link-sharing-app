@@ -4,6 +4,13 @@ packages:
 ignoredBuiltDependencies:
   - unrs-resolver
 onlyBuiltDependencies:
+  - '@nestjs/core'
   - '@parcel/watcher'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@scarf/scarf'
+  - '@swc/core'
   - '@tailwindcss/oxide'
+  - bcrypt
+  - prisma
   - sharp
