@@ -1,4 +1,4 @@
-import configuration from './configuration.common';
+import configuration from '../configuration.common';
 
 describe('Configuration Common', () => {
   const OLD_ENV = process.env;

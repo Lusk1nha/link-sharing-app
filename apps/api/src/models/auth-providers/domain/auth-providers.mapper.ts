@@ -10,7 +10,7 @@ export class AuthProviderMapper {
       UUIDFactory.from(raw.id),
       UUIDFactory.from(raw.userId),
       raw.providerType,
-      raw.providerId,
+      raw.providerId ? raw.providerId : undefined,
       raw.createdAt,
       raw.updatedAt,
     );

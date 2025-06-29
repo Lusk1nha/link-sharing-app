@@ -33,11 +33,15 @@ import { RevalidateSessionDto } from '../dto/revalidate-session.dto';
 import { UserJwtPayload } from 'src/common/auth/__types__/auth.types';
 import { InvalidSessionException } from '../../sessions/sessions.errors';
 import { LogoutUserDto } from '../dto/logout-user.dto';
+import { AuthProviderService } from 'src/models/auth-providers/auth-providers.service';
+import { AuthProviderEntity } from 'src/models/auth-providers/domain/auth-providers.entity';
+import { AuthSignInType } from '@prisma/client';
 
 describe(AuthService.name, () => {
   let authService: AuthService;
   let usersService: UsersService;
   let credentialsService: CredentialsService;
+  let authProviderService: AuthProviderService;
   let passwordService: PasswordService;
   let sessionsService: SessionsService;
   let prisma: PrismaService;
@@ -70,6 +74,12 @@ describe(AuthService.name, () => {
           },
         },
         {
+          provide: AuthProviderService,
+          useValue: {
+            createAuthProvider: jest.fn(),
+          },
+        },
+        {
           provide: PasswordService,
           useValue: {
             hashPassword: jest.fn(),
@@ -91,6 +101,7 @@ describe(AuthService.name, () => {
     authService = module.get<AuthService>(AuthService);
     usersService = module.get<UsersService>(UsersService);
     credentialsService = module.get<CredentialsService>(CredentialsService);
+    authProviderService = module.get<AuthProviderService>(AuthProviderService);
     passwordService = module.get<PasswordService>(PasswordService);
     sessionsService = module.get<SessionsService>(SessionsService);
     prisma = module.get<PrismaService>(PrismaService);
@@ -118,6 +129,7 @@ describe(AuthService.name, () => {
 
       const mockUserId = UUIDFactory.create();
       const mockCredId = UUIDFactory.create();
+      const mockAuthProviderId = UUIDFactory.create();
 
       const mockUserEntity = UserEntity.create(
         mockUserId,
@@ -128,6 +140,12 @@ describe(AuthService.name, () => {
         mockCredId,
         mockUserId,
         'hashed-password',
+      );
+
+      const mockAuthProviderEntity = AuthProviderEntity.create(
+        mockAuthProviderId,
+        mockUserId,
+        AuthSignInType.CREDENTIALS,
       );
 
       jest
@@ -142,6 +160,10 @@ describe(AuthService.name, () => {
         .spyOn(credentialsService, 'createCredential')
         .mockImplementationOnce(async () => mockCredentialEntity);
 
+      jest
+        .spyOn(authProviderService, 'createAuthProvider')
+        .mockImplementationOnce(async () => mockAuthProviderEntity);
+
       const result = await authService.register(dto);
 
       expect(passwordService.hashPassword).toHaveBeenCalled();
@@ -151,6 +173,10 @@ describe(AuthService.name, () => {
       );
       expect(credentialsService.createCredential).toHaveBeenCalledWith(
         expect.any(CredentialEntity),
+        expect.any(Object),
+      );
+      expect(authProviderService.createAuthProvider).toHaveBeenCalledWith(
+        expect.any(AuthProviderEntity),
         expect.any(Object),
       );
       expect(prisma.$transaction).toHaveBeenCalled();

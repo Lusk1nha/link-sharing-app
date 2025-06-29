@@ -1,5 +1,5 @@
 import { ExecutionContext } from '@nestjs/common';
-import { extractCookies } from './cookies.decorator';
+import { extractCookies } from '../cookies.decorator';
 
 describe('@Cookies decorator (via extractCookies)', () => {
   const mockRequest = {

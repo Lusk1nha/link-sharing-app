@@ -1,5 +1,5 @@
 import { BaseHttpException } from 'src/common/exceptions/base-expections.common';
-import { InvalidUuidException } from './uuid.errors';
+import { InvalidUuidException } from '../uuid.errors';
 import { HttpStatus } from '@nestjs/common';
 
 describe(InvalidUuidException.name, () => {

@@ -8,7 +8,7 @@ export class AuthProviderEntity {
     id: UUID,
     userId: UUID,
     providerType: AuthSignInType,
-    providerId: string,
+    providerId?: string,
     createdAt?: Date,
     updatedAt?: Date,
   ) {
@@ -51,7 +51,7 @@ export class AuthProviderEntity {
     description: 'Unique identifier for the provider account',
     type: String,
   })
-  public readonly providerId: string;
+  public readonly providerId?: string;
 
   @ApiProperty({
     description: 'Creation date of the auth provider entity',
@@ -69,7 +69,7 @@ export class AuthProviderEntity {
     id: UUID,
     userId: UUID,
     providerType: AuthSignInType,
-    providerId: string,
+    providerId?: string,
   ): AuthProviderEntity {
     return new AuthProviderEntity(id, userId, providerType, providerId);
   }

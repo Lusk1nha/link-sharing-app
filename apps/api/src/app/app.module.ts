@@ -22,6 +22,7 @@ import { HealthModule } from 'src/models/health/health.module';
 import { MemoryUsageModule } from 'src/models/memory-usage/memory-usage.module';
 import { AdminModule } from 'src/models/admin/admin.module';
 import { AuthProviderModule } from 'src/models/auth-providers/auth-providers.module';
+import { RolesModule } from 'src/models/roles/roles.module';
 
 const validationSchema = Joi.object({
   APP_PORT: Joi.number().integer().positive().default(3000),
@@ -54,7 +55,8 @@ const validationSchema = Joi.object({
     HashModule,
     TokenModule,
     AdminModule,
-    AuthProviderModule
+    AuthProviderModule,
+    RolesModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

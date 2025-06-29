@@ -1,5 +1,5 @@
-import { UUID } from './uuid.entity';
-import { InvalidUuidException } from './uuid.errors';
+import { UUID } from '../uuid.entity';
+import { InvalidUuidException } from '../uuid.errors';
 
 describe(UUID.name, () => {
   it('should be defined', () => {

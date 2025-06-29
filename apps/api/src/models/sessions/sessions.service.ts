@@ -50,6 +50,16 @@ export class SessionsService {
     return payload;
   }
 
+  async validateAccessToken(accessToken: string): Promise<UserJwtPayload> {
+    const payload = await this.tokenService.decodeToken(accessToken, 'access');
+
+    if (!payload) {
+      throw new InvalidSessionException();
+    }
+
+    return payload;
+  }
+
   async revokeByRefreshToken(user: UserEntity, refreshToken: string) {
     await this.validateTokenExists(user, refreshToken);
     await this.cacheService.deleteSessionFromCache(refreshToken);

@@ -9,6 +9,7 @@ import { SessionsService } from '../sessions/sessions.service';
 import { HashService } from '../hash/hash.service';
 import { TokenService } from '../token/token.service';
 import { SessionsCacheService } from '../sessions-cache/sessions-cache.service';
+import { AuthProviderService } from '../auth-providers/auth-providers.service';
 
 @Module({
   controllers: [AuthController],
@@ -16,6 +17,7 @@ import { SessionsCacheService } from '../sessions-cache/sessions-cache.service';
     AuthService,
     UsersService,
     CredentialsService,
+    AuthProviderService,
     PasswordService,
     PrismaService,
     SessionsService,

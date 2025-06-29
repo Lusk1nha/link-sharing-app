@@ -24,6 +24,9 @@ import { SessionsService } from '../sessions/sessions.service';
 import { RevalidateSessionDto } from './dto/revalidate-session.dto';
 import { SessionTokens } from './__types__/auth.types';
 import { LogoutUserDto } from './dto/logout-user.dto';
+import { AuthProviderService } from '../auth-providers/auth-providers.service';
+import { AuthProviderEntity } from '../auth-providers/domain/auth-providers.entity';
+import { AuthSignInType } from '@prisma/client';
 
 /**
  * O AuthService é responsável por gerenciar a autenticação e o registro de usuários.
@@ -41,6 +44,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
     private readonly credentialsService: CredentialsService,
+    private readonly authProviderService: AuthProviderService,
     private readonly passwordService: PasswordService,
     private readonly sessionsService: SessionsService,
   ) {}
@@ -58,10 +62,16 @@ export class AuthService {
       userId,
       passwordHash,
     );
+    const authProviderEntity = AuthProviderEntity.create(
+      UUIDFactory.create(),
+      userId,
+      AuthSignInType.CREDENTIALS,
+    );
 
     const createdUser = await this.prisma.$transaction(async (tx) => {
       const user = await this.usersService.createUser(userEntity, tx);
       await this.credentialsService.createCredential(credEntity, tx);
+      await this.authProviderService.createAuthProvider(authProviderEntity, tx);
 
       return user;
     });
