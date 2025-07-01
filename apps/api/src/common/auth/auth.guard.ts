@@ -4,25 +4,27 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-
-import { Request } from 'express';
-import { extractTokenFromHeader } from './auth.common';
-
 import { Reflector } from '@nestjs/core';
-import { Role } from '../roles/roles.common';
-import { AuthenticatedUserPayload } from './__types__/auth.types';
+import { Request } from 'express';
 
+import { extractTokenFromHeader } from './auth.common';
 import {
-  ForbiddenResourceException,
   NoTokenProvidedException,
+  UnauthorizedTokenException,
+  ForbiddenResourceException,
 } from './auth-common.errors';
-import { SessionsService } from 'src/models/sessions/sessions.service';
 
+import { JwtStoredPayload, RequestUserContext } from './__types__/auth.types';
+import { Role } from '../roles/roles.common';
+import { SessionsService } from 'src/models/sessions/sessions.service';
 import { RolesService } from 'src/models/roles/roles.service';
 import { UUIDFactory } from '../entities/uuid/uuid.factory';
 
-export type AuthExtensions = { user: AuthenticatedUserPayload };
-export type RequestWithAuthExtensions = Request & AuthExtensions;
+export interface AuthenticatedRequest extends Request {
+  user: RequestUserContext;
+}
+
+const ROLES_META_KEY = 'roles';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -32,60 +34,49 @@ export class AuthGuard implements CanActivate {
     private readonly reflector: Reflector,
   ) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: RequestWithAuthExtensions = context
-      .switchToHttp()
-      .getRequest();
+  async canActivate(ctx: ExecutionContext): Promise<boolean> {
+    const req = ctx.switchToHttp().getRequest<AuthenticatedRequest>();
+
+    await this.authenticate(req);
+
+    const requiredRoles =
+      this.reflector.getAllAndOverride<Role[]>(ROLES_META_KEY, [
+        ctx.getHandler(),
+        ctx.getClass(),
+      ]) ?? [];
+
+    if (requiredRoles.length === 0) return true;
+
+    const hasRole = requiredRoles.some((r) => req.user.rolesSet.has(r));
+    if (!hasRole) throw new ForbiddenResourceException();
+
+    return true;
+  }
+
+  private async authenticate(
+    req: AuthenticatedRequest,
+  ): Promise<JwtStoredPayload> {
+    const token = extractTokenFromHeader(req);
+    if (!token) throw new NoTokenProvidedException();
 
     try {
-      await this._authenticateUser(request);
-      return this._authorizeUser(request, context);
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
+      const payload = await this.sessionsService.validateAccessToken(token);
+
+      const rolesArr = await this.rolesService.getRolesByUserId(
+        UUIDFactory.from(payload.sub),
+      );
+
+      if (rolesArr.length === 0) throw new ForbiddenResourceException();
+
+      req.user = {
+        ...payload,
+        roles: rolesArr,
+        rolesSet: new Set<Role>(rolesArr),
+      };
+
+      return payload;
+    } catch {
+      throw new UnauthorizedTokenException();
     }
-  }
-
-  private async _authenticateUser(request: Request): Promise<void> {
-    const token = extractTokenFromHeader(request);
-
-    if (!token) {
-      throw new NoTokenProvidedException();
-    }
-
-    const payload = await this.sessionsService.validateAccessToken(token);
-    request['user'] = payload;
-  }
-
-  private async _authorizeUser(
-    request: RequestWithAuthExtensions,
-    context: ExecutionContext,
-  ): Promise<boolean> {
-    const userId = request.user.sub;
-
-    const requiredRoles = this._getMetadata<Role[]>('roles', context);
-    const userRoles = await this._getUserRoles(userId);
-
-    request.user.roles = userRoles;
-
-    if (!userRoles || userRoles.length === 0) {
-      throw new ForbiddenResourceException();
-    }
-
-    if (!requiredRoles || requiredRoles.length === 0) {
-      return true;
-    }
-
-    return requiredRoles.some((role) => userRoles.includes(role));
-  }
-
-  private _getMetadata<T>(key: string, context: ExecutionContext): T {
-    return this.reflector.getAllAndOverride<T>(key, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-  }
-
-  private async _getUserRoles(id: string): Promise<Role[]> {
-    return await this.rolesService.getRolesByUserId(UUIDFactory.from(id));
   }
 }

@@ -1,15 +1,19 @@
 import { Request } from 'express';
-import { AuthenticatedUserPayload } from './__types__/auth.types';
+import { JwtStoredPayload } from './__types__/auth.types';
 import { Role } from 'src/common/roles/roles.common';
 import { ForbiddenResourceException } from './auth-common.errors';
+import { UUID } from '../entities/uuid/uuid.entity';
+import { UUIDFactory } from '../entities/uuid/uuid.factory';
 
 export const checkRowLevelPermission = (
-  user: AuthenticatedUserPayload | undefined,
-  requestedUid?: string | string[],
+  user: JwtStoredPayload | undefined,
+  requestedUid?: UUID | UUID[],
   allowedRoles: Role[] = [Role.Admin],
 ): true => {
   /* 1️⃣ If user is not provided, deny access */
   if (!user) throw new ForbiddenResourceException();
+
+  const userId = UUIDFactory.from(user?.sub);
 
   /* 2️⃣ Role‑based shortcut */
   if (user.roles?.some((r) => allowedRoles.includes(r))) return true;
@@ -21,7 +25,8 @@ export const checkRowLevelPermission = (
   const ids = Array.isArray(requestedUid) ? requestedUid : [requestedUid];
 
   /* 5️⃣ Check if user ID is in the requested IDs */
-  if (!ids.includes(user.sub)) throw new ForbiddenResourceException();
+  if (!ids.some((id) => UUID.equals(id, userId)))
+    throw new ForbiddenResourceException();
 
   return true;
 };

@@ -1,8 +1,12 @@
 import { Module } from '@nestjs/common';
 import { SessionsCacheService } from './sessions-cache.service';
-import { HashService } from '../hash/hash.service';
+
+import { HashModule } from '../hash/hash.module';
+import { RedisCacheModule } from '../redis-cache/redis-cache.module';
 
 @Module({
-  providers: [SessionsCacheService, HashService],
+  imports: [HashModule, RedisCacheModule],
+  providers: [SessionsCacheService],
+  exports: [SessionsCacheService],
 })
 export class SessionsCacheModule {}

@@ -10,6 +10,12 @@ export default class Swagger {
         'This is the API documentation for the Auth Learning project. It provides endpoints for user authentication and management.',
       )
       .setVersion('1.0')
+      .addBearerAuth({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Enter JWT token',
+      })
       .build();
   }
 }

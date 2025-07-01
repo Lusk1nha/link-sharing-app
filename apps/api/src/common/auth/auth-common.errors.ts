@@ -1,6 +1,20 @@
 import { HttpStatus } from '@nestjs/common';
 import { BaseHttpException } from '../exceptions/base-expections.common';
 
+export class UnauthorizedTokenException extends BaseHttpException {
+  constructor() {
+    super(
+      {
+        message: 'The provided token is invalid or expired.',
+        code: 'UNAUTHORIZED_TOKEN',
+        status: HttpStatus.UNAUTHORIZED,
+      },
+      HttpStatus.UNAUTHORIZED,
+      'UNAUTHORIZED_TOKEN',
+    );
+  }
+}
+
 export class ForbiddenResourceException extends BaseHttpException {
   constructor() {
     super(

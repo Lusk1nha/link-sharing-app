@@ -3,15 +3,15 @@ import {
   checkRowLevelPermission,
   extractTokenFromHeader,
 } from '../auth.common';
-import { AuthenticatedUserPayload } from '../__types__/auth.types';
+import { JwtStoredPayload } from '../__types__/auth.types';
 import { UUIDFactory } from 'src/common/entities/uuid/uuid.factory';
 import { ForbiddenResourceException } from '../auth-common.errors';
 import { Role } from 'src/common/roles/roles.common';
 
 describe(checkRowLevelPermission.name, () => {
-  const userId = UUIDFactory.create().value;
-  const baseUser = (roles: Role[] = []): AuthenticatedUserPayload => ({
-    sub: userId,
+  const userId = UUIDFactory.create();
+  const baseUser = (roles: Role[] = []): JwtStoredPayload => ({
+    sub: userId.value,
     aud: 'test-aud',
     iss: 'test-iss',
     iat: Date.now(),
@@ -44,7 +44,7 @@ describe(checkRowLevelPermission.name, () => {
   });
 
   it('throws when user ID does not match requestedUid', () => {
-    const otherUid = UUIDFactory.create().value;
+    const otherUid = UUIDFactory.create();
     expect(() => checkRowLevelPermission(baseUser(), otherUid)).toThrow(
       ForbiddenResourceException,
     );
@@ -57,7 +57,7 @@ describe(checkRowLevelPermission.name, () => {
   });
 
   it('throws when none of requestedUid array matches user.sub', () => {
-    const ids = [UUIDFactory.create().value, UUIDFactory.create().value];
+    const ids = [UUIDFactory.create(), UUIDFactory.create()];
     expect(() => checkRowLevelPermission(baseUser(), ids)).toThrow(
       ForbiddenResourceException,
     );

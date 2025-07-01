@@ -11,19 +11,41 @@ import { Role } from 'src/common/roles/roles.common';
 import { AdminMapper } from 'src/models/admin/domain/admin.mapper';
 import { generateSingleMockAdmin } from 'src/models/admin/__mock__/admin.mock';
 
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+
+import { RedisCacheService } from 'src/models/redis-cache/redis-cache.service';
+
 describe(RolesService.name, () => {
   let rolesService: RolesService;
   let usersService: UsersService;
   let adminService: AdminService;
+  let redisService: RedisCacheService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [RolesService, UsersService, AdminService, PrismaService],
+      imports: [ConfigModule, JwtModule],
+      providers: [
+        RolesService,
+        AdminService,
+        UsersService,
+        PrismaService,
+        {
+          provide: RedisCacheService,
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
+            del: jest.fn(),
+          },
+        },
+        ConfigService,
+      ],
     }).compile();
 
     rolesService = module.get<RolesService>(RolesService);
     usersService = module.get<UsersService>(UsersService);
     adminService = module.get<AdminService>(AdminService);
+    redisService = module.get<RedisCacheService>(RedisCacheService);
   });
 
   it('should be defined', () => {

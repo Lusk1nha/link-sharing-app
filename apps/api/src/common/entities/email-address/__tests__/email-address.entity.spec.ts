@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
-import { EmailAddress } from './email-address.entity';
+import { EmailAddress } from '../email-address.entity';
 import {
   EmptyEmailAddressException,
   InvalidEmailAddressException,
-} from './email-address.errors';
+} from '../email-address.errors';
 
 describe(EmailAddress.name, () => {
   it('should be defined', () => {

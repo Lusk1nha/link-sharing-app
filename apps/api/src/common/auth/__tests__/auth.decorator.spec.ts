@@ -1,6 +1,6 @@
 import { ExecutionContext } from '@nestjs/common';
 import { extractAuthenticatedUser } from '../auth.decorator';
-import { AuthenticatedUserPayload } from '../__types__/auth.types';
+import { JwtStoredPayload } from '../__types__/auth.types';
 import { faker } from '@faker-js/faker/.';
 import { Role } from 'src/common/roles/roles.common';
 import { ImpossibleToGetUserFromRequestException } from '../auth-common.errors';
@@ -14,7 +14,7 @@ describe('@GetAuthUser decorator via (extractAuthenticatedUser)', () => {
       iat: Date.now(),
       email: faker.internet.email(),
       roles: [faker.helpers.enumValue(Role)],
-    } as AuthenticatedUserPayload,
+    } as JwtStoredPayload,
   };
 
   const emptyRequest = {

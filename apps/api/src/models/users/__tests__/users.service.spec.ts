@@ -31,7 +31,9 @@ describe(UsersService.name, () => {
               update: jest.fn(),
               findUnique: jest.fn(),
               findMany: jest.fn(),
+              delete: jest.fn(),
             },
+            $transaction: jest.fn((cb) => cb(prismaService)),
           },
         },
       ],
@@ -174,6 +176,44 @@ describe(UsersService.name, () => {
       await expect(service.createUser(userEntity)).rejects.toThrow(
         new UserAlreadyExistsException(),
       );
+    });
+  });
+
+  describe('Update user', () => {
+    it(`should be defined ${UsersService.prototype.updateUser.name}`, () => {
+      expect(service.updateUser).toBeDefined();
+    });
+  });
+
+  describe('Delete user', () => {
+    it(`should be defined ${UsersService.prototype.deleteUser.name}`, () => {
+      expect(service.deleteUser).toBeDefined();
+    });
+
+    it('should delete a user by ID', async () => {
+      const user = generateSingleMockUser();
+
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(user);
+      jest.spyOn(prismaService.user, 'delete').mockResolvedValue(user);
+
+      await service.deleteUser(UUIDFactory.from(user.id));
+
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { id: user.id },
+      });
+      expect(prismaService.user.delete).toHaveBeenCalledWith({
+        where: { id: user.id },
+      });
+    });
+
+    it('should throw UserNotFoundException if user does not exist', async () => {
+      const mockId = faker.string.uuid();
+
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(null);
+
+      await expect(
+        service.deleteUser(UUIDFactory.from(mockId)),
+      ).rejects.toThrow(new UserNotFoundException());
     });
   });
 });

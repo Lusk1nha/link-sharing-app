@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UsersController updateCurrentUser route should validate request dto 1`] = `"Bad Request Exception"`;

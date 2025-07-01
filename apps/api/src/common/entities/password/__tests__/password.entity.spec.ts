@@ -1,8 +1,8 @@
-import { Password } from './password.entity';
+import { Password } from '../password.entity';
 import {
   InvalidPasswordException,
   WeakPasswordException,
-} from './password.errors';
+} from '../password.errors';
 
 describe(Password.name, () => {
   it('should be defined', () => {

@@ -13,9 +13,7 @@ import { PrismaService } from 'src/common/database/database.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { EmailAddress } from 'src/common/entities/email-address/email-address.entity';
 import { Password } from 'src/common/entities/password/password.entity';
-import { UserNotFoundException } from '../users/users.errors';
-import { UUID } from 'src/common/entities/uuid/uuid.entity';
-import { CredentialNotFoundException } from '../credentials/credentials.errors';
+
 import {
   LoginCredentialsInvalidException,
   NoRefreshTokenProvidedException,
