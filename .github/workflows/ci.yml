@@ -66,32 +66,37 @@ jobs:
       - name: Run Lint
         run: pnpm turbo run lint
 
-  # build:
-  #   name: Build and Test
-  #   timeout-minutes: 15
-  #   runs-on: ubuntu-latest
+  build:
+    name: Build Project
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 2
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.7.1 }
 
-  #     - uses: pnpm/action-setup@v3
-  #       with:
-  #         version: 8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
 
-  #     - name: Setup Node.js environment
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 20
-  #         cache: 'pnpm'
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
 
-  #     - name: Install dependencies
-  #       run: pnpm install
+      - name: Cache Turborepo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-turbo-
 
-  #     - name: Build
-  #       run: pnpm build
-
-  #     - name: Test
-  #       run: pnpm test
+      - run: pnpm install --frozen-lockfile
+      - name: Build afetados
+        run: pnpm turbo run build --filter=...[HEAD^]
