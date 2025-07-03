@@ -64,7 +64,7 @@ describe(AuthController.name, () => {
 
       jest
         .spyOn(authService, 'register')
-        .mockImplementationOnce(async () => mockUserEntity);
+        .mockImplementationOnce(async () => await mockUserEntity);
 
       const result = await controller.register(mockRequestDto);
 

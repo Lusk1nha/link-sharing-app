@@ -7,7 +7,7 @@ import { AdminService } from '../admin/admin.service';
 import { ROLES_REDIS_KEYS } from './__types__/roles.types';
 import { RedisCacheService } from '../redis-cache/redis-cache.service';
 
-const ROLE_EXPIRATION_TTL = 15 * 60; // 15 min em *segundos*
+const ROLE_EXPIRATION_TTL = 15 * 60;
 
 @Injectable()
 export class RolesService {

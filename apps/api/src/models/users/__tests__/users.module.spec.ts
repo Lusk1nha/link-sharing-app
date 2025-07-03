@@ -7,7 +7,7 @@ describe(UsersModule.name, () => {
     module = new UsersModule();
   });
 
-  it(`#${UsersModule.name} should be defined without errors when services loads`, async () => {
+  it(`#${UsersModule.name} should be defined without errors when services loads`, () => {
     expect(module).toBeDefined();
   });
 });

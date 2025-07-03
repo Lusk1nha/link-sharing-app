@@ -7,6 +7,15 @@ describe(AppController.name, () => {
   let controller: AppController;
   let appService: AppService;
 
+  const mockResponse: GetIndexResponseDto = {
+    name: 'NestJS Application',
+    description: 'This is a sample NestJS application.',
+    version: '1.0.0',
+    environment: 'development',
+    authors: ['teste'],
+    docsUrl: 'https://docs.nestjs.com',
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
@@ -14,7 +23,7 @@ describe(AppController.name, () => {
         {
           provide: AppService,
           useValue: {
-            getIndex: jest.fn(),
+            getIndex: jest.fn().mockReturnValue(mockResponse),
           },
         },
       ],
@@ -35,19 +44,6 @@ describe(AppController.name, () => {
     });
 
     it(`should call ${AppService.prototype.getIndex.name} when route is called`, async () => {
-      const mockResponse: GetIndexResponseDto = {
-        name: 'NestJS Application',
-        description: 'This is a sample NestJS application.',
-        version: '1.0.0',
-        environment: 'development',
-        authors: ['teste'],
-        docsUrl: 'https://docs.nestjs.com',
-      };
-
-      jest
-        .spyOn(appService, 'getIndex')
-        .mockImplementationOnce(async () => mockResponse);
-
       const result = await controller.getIndex();
 
       expect(result).toEqual(mockResponse);

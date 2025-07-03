@@ -23,7 +23,7 @@ describe(AppService.name, () => {
                 DOCS_URL: 'http://localhost:3000/docs',
               };
 
-              return config[key] || defaultValue;
+              return config?.[key] || defaultValue;
             }),
           },
         },
@@ -42,8 +42,8 @@ describe(AppService.name, () => {
       expect(service.getIndex).toBeDefined();
     });
 
-    it(`should return a GetIndexResponseDto with correct values`, async () => {
-      const result = await service.getIndex();
+    it(`should return a GetIndexResponseDto with correct values`, () => {
+      const result = service.getIndex();
 
       expect(result).toHaveProperty('name');
       expect(result).toHaveProperty('description');

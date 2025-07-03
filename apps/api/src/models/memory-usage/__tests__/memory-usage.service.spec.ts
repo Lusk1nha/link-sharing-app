@@ -22,8 +22,8 @@ describe(MemoryUsageService.name, () => {
       expect(memoryUsageService.getMemoryUsage).toBeDefined();
     });
 
-    it('should return memory usage data', async () => {
-      const memoryUsage = await memoryUsageService.getMemoryUsage();
+    it('should return memory usage data', () => {
+      const memoryUsage = memoryUsageService.getMemoryUsage();
       expect(memoryUsage).toBeDefined();
       expect(memoryUsage.rss).toBeDefined();
       expect(memoryUsage.heapTotal).toBeDefined();
@@ -31,13 +31,13 @@ describe(MemoryUsageService.name, () => {
       expect(memoryUsage.external).toBeDefined();
     });
 
-    it('should return error if memory usage cannot be retrieved', async () => {
+    it('should return error if memory usage cannot be retrieved', () => {
       jest.spyOn(process, 'memoryUsage').mockImplementationOnce(() => {
         throw new MemoryUsageCannotBeRetrievedException();
       });
 
-      await expect(memoryUsageService.getMemoryUsage()).rejects.toThrow(
-        new MemoryUsageCannotBeRetrievedException(),
+      expect(() => memoryUsageService.getMemoryUsage()).toThrow(
+        MemoryUsageCannotBeRetrievedException,
       );
     });
   });

@@ -3,7 +3,7 @@ import { AdminModule } from '../admin.module';
 describe(AdminModule.name, () => {
   let module: AdminModule;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     module = new AdminModule();
   });
 

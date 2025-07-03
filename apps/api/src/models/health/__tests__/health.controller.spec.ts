@@ -47,6 +47,8 @@ describe(HealthController.name, () => {
 
   it('should be defined', () => {
     expect(healthController).toBeDefined();
+    expect(healthService).toBeDefined();
+    expect(prismaService).toBeDefined();
   });
 
   describe('checkSystemHealth route', () => {

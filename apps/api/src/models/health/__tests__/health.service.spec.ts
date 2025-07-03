@@ -46,5 +46,8 @@ describe(HealthService.name, () => {
 
   it('should be defined', () => {
     expect(healthService).toBeDefined();
+    expect(configService).toBeDefined();
+    expect(memoryUsageService).toBeDefined();
+    expect(prismaService).toBeDefined();
   });
 });

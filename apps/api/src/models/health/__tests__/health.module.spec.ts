@@ -3,7 +3,7 @@ import { HealthModule } from '../health.module';
 describe(HealthModule.name, () => {
   let healthModule: HealthModule;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     healthModule = new HealthModule();
   });
 

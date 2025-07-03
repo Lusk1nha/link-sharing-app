@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CredentialsController } from '../credentials.controller';
 import { CredentialsService } from '../credentials.service';
-import { UsersModule } from 'src/models/users/users.module';
+
 import { PasswordModule } from 'src/models/password/password.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from 'src/common/database/database.service';
@@ -15,7 +15,7 @@ import { UpdateCredentialDto } from '../dto/update-credential.dto';
 import { ValidationPipe } from '@nestjs/common';
 import { generateSingleMockCredential } from '../__mock__/credentials.mock';
 import { CredentialMapper } from '../domain/credential.mapper';
-import { UserMapper } from 'src/models/users/domain/user.mapper';
+
 import { UpdateCredentialResponseDto } from '../dto/update-credential-response.dto';
 import { PasswordService } from 'src/models/password/password.service';
 import { faker } from '@faker-js/faker/.';
@@ -77,7 +77,7 @@ describe(CredentialsController.name, () => {
     });
 
     it(`should validate the request body`, async () => {
-      let target: ValidationPipe = new ValidationPipe({
+      const target: ValidationPipe = new ValidationPipe({
         transform: true,
         whitelist: true,
       });
@@ -97,7 +97,7 @@ describe(CredentialsController.name, () => {
     });
 
     it(`should validate the request body with invalid data`, async () => {
-      let target: ValidationPipe = new ValidationPipe({
+      const target: ValidationPipe = new ValidationPipe({
         transform: true,
         whitelist: true,
       });
@@ -116,7 +116,6 @@ describe(CredentialsController.name, () => {
 
     it(`should update user credentials`, async () => {
       const mockUser = generateSingleMockUser();
-      const mockUserEntity = UserMapper.toDomain(mockUser);
 
       const body: UpdateCredentialDto = {
         password: 'new-password',

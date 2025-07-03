@@ -3,7 +3,7 @@ import { RolesModule } from '../roles.module';
 describe(RolesModule.name, () => {
   let module: RolesModule;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     module = new RolesModule();
   });
 

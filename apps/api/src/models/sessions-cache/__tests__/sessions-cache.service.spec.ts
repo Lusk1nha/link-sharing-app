@@ -1,11 +1,10 @@
-import { Cache } from 'cache-manager';
 import { HashService } from '../../hash/hash.service';
 import {
   SESSION_EXPIRATION_TTL,
   SessionsCacheService,
 } from '../sessions-cache.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+
 import { generateSingleMockUser } from '../../users/__mock__/users.mock';
 import { generateSingleMockToken } from '../../token/__mock__/token.mock';
 import { TokenMapper } from '../../token/domain/token.mapper';

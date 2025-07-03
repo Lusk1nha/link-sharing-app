@@ -24,7 +24,7 @@ describe(AuthProviderService, () => {
     service = module.get<AuthProviderService>(AuthProviderService);
   });
 
-  it(`#${AuthProviderService.name} should be defined without errors when services loads`, async () => {
+  it(`#${AuthProviderService.name} should be defined without errors when services loads`, () => {
     expect(service).toBeDefined();
   });
 });

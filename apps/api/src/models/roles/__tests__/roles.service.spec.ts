@@ -52,6 +52,7 @@ describe(RolesService.name, () => {
     expect(rolesService).toBeDefined();
     expect(usersService).toBeDefined();
     expect(adminService).toBeDefined();
+    expect(redisService).toBeDefined();
   });
 
   it('should return User role for a user with no admin role', async () => {

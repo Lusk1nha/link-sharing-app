@@ -10,8 +10,6 @@ import {
 } from './credentials.errors';
 import { PrismaTransaction } from 'src/common/database/__types__/database.types';
 import { Prisma } from '@prisma/client';
-import { PasswordFactory } from 'src/common/entities/password/password.factory';
-import { Password } from 'src/common/entities/password/password.entity';
 
 @Injectable()
 export class CredentialsService {

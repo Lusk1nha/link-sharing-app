@@ -5,7 +5,7 @@ import {
   GetAuthUser,
 } from 'src/common/auth/auth.decorator';
 import { CredentialsService } from './credentials.service';
-import { UsersService } from '../users/users.service';
+
 import { JwtStoredPayload } from 'src/common/auth/__types__/auth.types';
 import { UpdateCredentialDto } from './dto/update-credential.dto';
 import { UUIDFactory } from 'src/common/entities/uuid/uuid.factory';

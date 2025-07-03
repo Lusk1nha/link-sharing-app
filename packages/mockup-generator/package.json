@@ -2,6 +2,7 @@
   "name": "@link-sharing-app/mockup-generator",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@10.7.1",
   "exports": {
     "./mockup": "./src/mockup.ts",
@@ -16,6 +17,7 @@
     "@link-sharing-app/eslint-config": "workspace:*",
     "@link-sharing-app/jest-presets": "workspace:*",
     "@link-sharing-app/typescript-config": "workspace:*",
+    "eslint": "9.30.1",
     "@faker-js/faker": "^9.8.0",
     "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.14",

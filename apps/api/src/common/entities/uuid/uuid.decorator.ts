@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  createParamDecorator,
-  ExecutionContext,
-} from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
 import { UUID } from './uuid.entity';
 import { EmptyUuidParameterException } from './uuid.errors';

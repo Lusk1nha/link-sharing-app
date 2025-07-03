@@ -8,7 +8,7 @@ import { MemoryUsageEntity } from './domain/memory-usage.entity';
 export class MemoryUsageService {
   private readonly logger = new Logger(MemoryUsageService.name);
 
-  async getMemoryUsage(): Promise<MemoryUsageEntity> {
+  getMemoryUsage(): MemoryUsageEntity {
     try {
       const memoryUsage = process.memoryUsage();
       const format = (bytes: number) =>

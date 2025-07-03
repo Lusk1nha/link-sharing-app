@@ -3,7 +3,7 @@ import { AuthModule } from '../auth.module';
 describe(AuthModule.name, () => {
   let module: AuthModule;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     module = new AuthModule();
   });
 

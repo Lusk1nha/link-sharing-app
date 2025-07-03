@@ -9,7 +9,7 @@ export class AppService {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async getIndex(): Promise<GetIndexResponseDto> {
+  getIndex(): GetIndexResponseDto {
     const name = this.getEnvironmentVariable('APP_NAME');
     const description = this.getEnvironmentVariable('APP_DESCRIPTION');
     const version = this.getEnvironmentVariable('APP_VERSION', '1.0.0');

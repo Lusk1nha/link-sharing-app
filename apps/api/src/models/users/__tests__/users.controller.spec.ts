@@ -4,7 +4,7 @@ import { UsersService } from '../users.service';
 import { PrismaService } from 'src/common/database/database.service';
 import { RolesModule } from 'src/models/roles/roles.module';
 import { SessionsModule } from 'src/models/sessions/sessions.module';
-import { CACHE_MANAGER, CacheModule } from '@nestjs/cache-manager';
+import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule } from '@nestjs/config';
 import { generateSingleMockUser } from '../__mock__/users.mock';
 import { JwtStoredPayload } from 'src/common/auth/__types__/auth.types';
@@ -13,7 +13,7 @@ import { UserMapper } from '../domain/user.mapper';
 import { GetUserResponseDto } from '../dto/get-user-response.dto';
 import { ForbiddenResourceException } from 'src/common/auth/auth-common.errors';
 import { DeleteUserResponseDto } from '../dto/delete-user-response.dto';
-import { fa, faker } from '@faker-js/faker/.';
+import { faker } from '@faker-js/faker/.';
 import { UpdateUserResponseDto } from '../dto/update-user-response.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { ValidationPipe } from '@nestjs/common';
@@ -196,7 +196,7 @@ describe(UsersController.name, () => {
     });
 
     it(`should validate request dto`, async () => {
-      let target: ValidationPipe = new ValidationPipe({
+      const target: ValidationPipe = new ValidationPipe({
         transform: true,
         whitelist: true,
       });

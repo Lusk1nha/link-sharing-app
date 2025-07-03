@@ -53,7 +53,9 @@ describe(AuthService.name, () => {
         {
           provide: PrismaService,
           useValue: {
-            $transaction: jest.fn().mockImplementation(async (cb) => cb({})),
+            $transaction: jest
+              .fn()
+              .mockImplementation(async (cb) => await cb({})),
           },
         },
         {
@@ -154,15 +156,15 @@ describe(AuthService.name, () => {
 
       jest
         .spyOn(usersService, 'createUser')
-        .mockImplementationOnce(async () => mockUserEntity);
+        .mockImplementationOnce(async () => await mockUserEntity);
 
       jest
         .spyOn(credentialsService, 'createCredential')
-        .mockImplementationOnce(async () => mockCredentialEntity);
+        .mockImplementationOnce(async () => await mockCredentialEntity);
 
       jest
         .spyOn(authProviderService, 'createAuthProvider')
-        .mockImplementationOnce(async () => mockAuthProviderEntity);
+        .mockImplementationOnce(async () => await mockAuthProviderEntity);
 
       const result = await authService.register(dto);
 
