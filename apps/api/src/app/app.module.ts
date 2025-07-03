@@ -13,8 +13,7 @@ import { AuthModule } from 'src/models/auth/auth.module';
 import { SessionsModule } from 'src/models/sessions/sessions.module';
 import { HashModule } from 'src/models/hash/hash.module';
 import { TokenModule } from 'src/models/token/token.module';
-import { CacheModule } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-redis-store';
+
 import { SessionsCacheModule } from 'src/models/sessions-cache/sessions-cache.module';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
@@ -23,6 +22,12 @@ import { MemoryUsageModule } from 'src/models/memory-usage/memory-usage.module';
 import { AdminModule } from 'src/models/admin/admin.module';
 import { AuthProviderModule } from 'src/models/auth-providers/auth-providers.module';
 import { RolesModule } from 'src/models/roles/roles.module';
+
+import { RedisCacheModule } from 'src/models/redis-cache/redis-cache.module';
+import { JwtModule } from '@nestjs/jwt';
+import tokenConstants from 'src/models/token/token.constants';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-store';
 
 const validationSchema = Joi.object({
   APP_PORT: Joi.number().integer().positive().default(3000),
@@ -37,6 +42,11 @@ const validationSchema = Joi.object({
       load: [configuration],
       validationSchema,
     }),
+    JwtModule.register({
+      global: true,
+      secret: tokenConstants().secret,
+      signOptions: { expiresIn: '60s' },
+    }),
     CacheModule.register({
       isGlobal: true,
       store: redisStore,
@@ -44,6 +54,7 @@ const validationSchema = Joi.object({
       port: process.env.REDIS_PORT,
     }),
 
+    RedisCacheModule,
     HealthModule,
     MemoryUsageModule,
     UsersModule,

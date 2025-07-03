@@ -10,6 +10,8 @@ import {
 } from './credentials.errors';
 import { PrismaTransaction } from 'src/common/database/__types__/database.types';
 import { Prisma } from '@prisma/client';
+import { PasswordFactory } from 'src/common/entities/password/password.factory';
+import { Password } from 'src/common/entities/password/password.entity';
 
 @Injectable()
 export class CredentialsService {
@@ -32,6 +34,21 @@ export class CredentialsService {
   ): Promise<CredentialEntity | null> {
     const record = await this.prisma.credential.findUnique({ where });
     return record ? CredentialMapper.toDomain(record) : null;
+  }
+
+  private async updateUnique(
+    credential: CredentialEntity,
+    tx?: PrismaTransaction,
+  ): Promise<CredentialEntity> {
+    const client = this.client(tx);
+    const record = await client.credential.update({
+      where: { id: credential.id.value },
+      data: {
+        passwordHash: credential.passwordHash,
+      },
+    });
+
+    return CredentialMapper.toDomain(record);
   }
 
   /**
@@ -98,5 +115,24 @@ export class CredentialsService {
       this.logger.error(`Error creating credential: ${err.message}`);
       throw err;
     }
+  }
+
+  async updateCredentials(
+    userId: UUID,
+    hash: string,
+  ): Promise<CredentialEntity> {
+    this.logger.log(
+      `Attempting to update credentials for userId=${userId.value}`,
+    );
+
+    return this.prisma.$transaction(async (tx) => {
+      const credential = await this.findByUserIdOrThrow(userId);
+
+      const patched = CredentialEntity.patch(credential, {
+        passwordHash: hash,
+      });
+
+      return await this.updateUnique(patched, tx);
+    });
   }
 }

@@ -1,29 +1,23 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
-import { CredentialsService } from '../credentials/credentials.service';
-import { PasswordService } from '../password/password.service';
 import { PrismaService } from 'src/common/database/database.service';
 import { AuthController } from './auth.controller';
-import { SessionsService } from '../sessions/sessions.service';
-import { HashService } from '../hash/hash.service';
-import { TokenService } from '../token/token.service';
-import { SessionsCacheService } from '../sessions-cache/sessions-cache.service';
-import { AuthProviderService } from '../auth-providers/auth-providers.service';
+import { UsersModule } from '../users/users.module';
+import { CredentialsModule } from '../credentials/credentials.module';
+import { PasswordModule } from '../password/password.module';
+import { SessionsModule } from '../sessions/sessions.module';
+import { AuthProviderModule } from '../auth-providers/auth-providers.module';
 
 @Module({
-  controllers: [AuthController],
-  providers: [
-    AuthService,
-    UsersService,
-    CredentialsService,
-    AuthProviderService,
-    PasswordService,
-    PrismaService,
-    SessionsService,
-    SessionsCacheService,
-    HashService,
-    TokenService,
+  imports: [
+    UsersModule,
+    CredentialsModule,
+    AuthProviderModule,
+    PasswordModule,
+    SessionsModule,
   ],
+  controllers: [AuthController],
+  providers: [AuthService, PrismaService],
+  exports: [AuthService],
 })
 export class AuthModule {}

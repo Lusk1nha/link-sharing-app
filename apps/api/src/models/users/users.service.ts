@@ -49,6 +49,19 @@ export class UsersService {
     return UserMapper.toDomain(record);
   }
 
+  private async deleteUnique(
+    id: UUID,
+    tx?: PrismaTransaction,
+  ): Promise<UserEntity> {
+    const client = this.client(tx);
+
+    const record = await client.user.delete({
+      where: { id: id.value },
+    });
+
+    return UserMapper.toDomain(record);
+  }
+
   /**
    * Resolves the Prisma client, using transaction if provided.
    */
@@ -156,5 +169,16 @@ export class UsersService {
 
       return this.updateUnique(patched, tx);
     });
+  }
+
+  async deleteUser(id: UUID): Promise<void> {
+    this.logger.log(`Attempting to delete user id=${id.value}`);
+
+    await this.prisma.$transaction(async (tx) => {
+      await this.findByIdOrThrow(id);
+      return await this.deleteUnique(id, tx);
+    });
+
+    this.logger.log(`User deleted with id=${id.value}`);
   }
 }

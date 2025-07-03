@@ -5,7 +5,7 @@ import {
   AllowAuthenticated,
   GetAuthUser,
 } from 'src/common/auth/auth.decorator';
-import { AuthenticatedUserPayload } from 'src/common/auth/__types__/auth.types';
+import { JwtStoredPayload } from 'src/common/auth/__types__/auth.types';
 import { GetCurrentUserRolesResponseDto } from './dto/get-current-user-roles-response.dto';
 import { UUIDFactory } from 'src/common/entities/uuid/uuid.factory';
 import { UUIDParam } from 'src/common/entities/uuid/uuid.decorator';
@@ -30,7 +30,7 @@ export class RolesController {
     description: 'Get the roles of the current authenticated user',
   })
   async getCurrentUserRoles(
-    @GetAuthUser() user: AuthenticatedUserPayload,
+    @GetAuthUser() user: JwtStoredPayload,
   ): Promise<GetCurrentUserRolesResponseDto> {
     const userId = UUIDFactory.from(user.sub);
     const roles = await this.rolesService.getRolesByUserId(userId);
@@ -45,10 +45,10 @@ export class RolesController {
   })
   async getUserRoles(
     @UUIDParam('id') userId: UUID,
-    @GetAuthUser() currentUser: AuthenticatedUserPayload,
+    @GetAuthUser() currentUser: JwtStoredPayload,
   ): Promise<GetUserRolesByIdResponseDto> {
     const user = await this.usersService.findByIdOrThrow(userId);
-    checkRowLevelPermission(currentUser, user.id.value);
+    checkRowLevelPermission(currentUser, user.id);
 
     const roles = await this.rolesService.getRolesByUserId(userId);
     return new GetUserRolesByIdResponseDto(user, roles);

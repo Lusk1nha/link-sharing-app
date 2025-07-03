@@ -1,27 +1,27 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { Cache } from 'cache-manager';
+import { Injectable, Logger } from '@nestjs/common';
+
 import { HashService } from '../hash/hash.service';
-import { REDIS_KEYS } from '../sessions/__types__/sessions.types';
+import { SESSION_REDIS_KEYS } from '../sessions/__types__/sessions.types';
 import { UserEntity } from '../users/domain/user.entity';
 import { TokenEntity } from '../token/domain/token.entity';
+import { RedisCacheService } from '../redis-cache/redis-cache.service';
 
-export const EXPIRATION_TTL = 7 * 24 * 60 * 60; // 7 days in seconds
+export const SESSION_EXPIRATION_TTL = 7 * 24 * 60 * 60; // 7 days in seconds
 
 @Injectable()
 export class SessionsCacheService {
   private readonly logger = new Logger(SessionsCacheService.name);
 
   constructor(
-    @Inject(CACHE_MANAGER) private cacheService: Cache,
     private readonly hashService: HashService,
+    private readonly redisService: RedisCacheService,
   ) {}
 
   async getSessionFromCache(refreshToken: string): Promise<string | null> {
     const tokenHash = this.hashService.generate(refreshToken);
-    const cacheKey = `${REDIS_KEYS.REFRESH_TOKEN_PREFIX}${tokenHash}`;
+    const cacheKey = `${SESSION_REDIS_KEYS.REFRESH_TOKEN_PREFIX}${tokenHash}`;
 
-    const userId = await this.cacheService.get<string>(cacheKey);
+    const userId = await this.redisService.get<string>(cacheKey);
 
     if (!userId) {
       return null;
@@ -37,14 +37,14 @@ export class SessionsCacheService {
   async saveSessionInCache(user: UserEntity, refreshToken: TokenEntity) {
     const tokenHash = this.hashService.generate(refreshToken.token);
 
-    const cacheKey = `${REDIS_KEYS.REFRESH_TOKEN_PREFIX}${tokenHash}`;
+    const cacheKey = `${SESSION_REDIS_KEYS.REFRESH_TOKEN_PREFIX}${tokenHash}`;
 
     const cacheValue = user.id.value;
 
-    const result = await this.cacheService.set(
+    const result = await this.redisService.set(
       cacheKey,
       cacheValue,
-      EXPIRATION_TTL,
+      SESSION_EXPIRATION_TTL,
     );
 
     this.logger.log(
@@ -56,9 +56,9 @@ export class SessionsCacheService {
 
   async deleteSessionFromCache(previousToken: string) {
     const tokenHash = this.hashService.generate(previousToken);
-    const cacheKey = `${REDIS_KEYS.REFRESH_TOKEN_PREFIX}${tokenHash}`;
+    const cacheKey = `${SESSION_REDIS_KEYS.REFRESH_TOKEN_PREFIX}${tokenHash}`;
 
-    const result = await this.cacheService.del(cacheKey);
+    const result = await this.redisService.del(cacheKey);
 
     if (result) {
       this.logger.log(

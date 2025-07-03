@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { EmailAddressFactory } from './email-address.factory';
-import { InvalidEmailAddressException } from './email-address.errors';
+import { EmailAddressFactory } from '../email-address.factory';
+import { InvalidEmailAddressException } from '../email-address.errors';
 
 describe(EmailAddressFactory.name, () => {
   it('should be defined', () => {

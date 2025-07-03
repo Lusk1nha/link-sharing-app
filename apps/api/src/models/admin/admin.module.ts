@@ -4,5 +4,6 @@ import { AdminService } from './admin.service';
 
 @Module({
   providers: [AdminService, PrismaService],
+  exports: [AdminService],
 })
 export class AdminModule {}

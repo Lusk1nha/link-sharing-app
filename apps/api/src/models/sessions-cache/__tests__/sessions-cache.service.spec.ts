@@ -1,18 +1,22 @@
 import { Cache } from 'cache-manager';
 import { HashService } from '../../hash/hash.service';
-import { EXPIRATION_TTL, SessionsCacheService } from '../sessions-cache.service';
+import {
+  SESSION_EXPIRATION_TTL,
+  SessionsCacheService,
+} from '../sessions-cache.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { generateSingleMockUser } from '../../users/__mock__/users.mock';
 import { generateSingleMockToken } from '../../token/__mock__/token.mock';
 import { TokenMapper } from '../../token/domain/token.mapper';
 import { UserMapper } from '../../users/domain/user.mapper';
-import { REDIS_KEYS } from '../../sessions/__types__/sessions.types';
+import { SESSION_REDIS_KEYS } from '../../sessions/__types__/sessions.types';
+import { RedisCacheService } from 'src/models/redis-cache/redis-cache.service';
 
 describe(SessionsCacheService.name, () => {
   let service: SessionsCacheService;
   let hashService: HashService;
-  let cacheService: Cache;
+  let redisService: RedisCacheService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -25,10 +29,10 @@ describe(SessionsCacheService.name, () => {
           },
         },
         {
-          provide: CACHE_MANAGER,
+          provide: RedisCacheService,
           useValue: {
-            set: jest.fn(),
             get: jest.fn(),
+            set: jest.fn(),
             del: jest.fn(),
           },
         },
@@ -37,13 +41,13 @@ describe(SessionsCacheService.name, () => {
 
     service = module.get<SessionsCacheService>(SessionsCacheService);
     hashService = module.get<HashService>(HashService);
-    cacheService = module.get<Cache>(CACHE_MANAGER);
+    redisService = module.get<RedisCacheService>(RedisCacheService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
     expect(hashService).toBeDefined();
-    expect(cacheService).toBeDefined();
+    expect(redisService).toBeDefined();
   });
 
   describe('getSessionFromCache', () => {
@@ -56,14 +60,14 @@ describe(SessionsCacheService.name, () => {
       const hashedRefreshToken = 'hashed-token';
 
       jest.spyOn(hashService, 'generate').mockReturnValue(hashedRefreshToken);
-      jest.spyOn(cacheService, 'get').mockResolvedValue(null);
+      jest.spyOn(redisService, 'get').mockResolvedValue(null);
 
-      const cacheKey = `${REDIS_KEYS.REFRESH_TOKEN_PREFIX}${hashedRefreshToken}`;
+      const cacheKey = `${SESSION_REDIS_KEYS.REFRESH_TOKEN_PREFIX}${hashedRefreshToken}`;
 
       const result = await service.getSessionFromCache(refreshToken);
       expect(result).toBeNull();
       expect(hashService.generate).toHaveBeenCalledWith(refreshToken);
-      expect(cacheService.get).toHaveBeenCalledWith(cacheKey);
+      expect(redisService.get).toHaveBeenCalledWith(cacheKey);
     });
 
     it('should return user ID if found in cache', async () => {
@@ -71,14 +75,14 @@ describe(SessionsCacheService.name, () => {
       const hashedRefreshToken = 'hashed-token';
 
       jest.spyOn(hashService, 'generate').mockReturnValue(hashedRefreshToken);
-      jest.spyOn(cacheService, 'get').mockResolvedValue('user-id-123');
+      jest.spyOn(redisService, 'get').mockResolvedValue('user-id-123');
 
-      const cacheKey = `${REDIS_KEYS.REFRESH_TOKEN_PREFIX}${hashedRefreshToken}`;
+      const cacheKey = `${SESSION_REDIS_KEYS.REFRESH_TOKEN_PREFIX}${hashedRefreshToken}`;
 
       const result = await service.getSessionFromCache(refreshToken);
       expect(result).toBe('user-id-123');
       expect(hashService.generate).toHaveBeenCalledWith(refreshToken);
-      expect(cacheService.get).toHaveBeenCalledWith(cacheKey);
+      expect(redisService.get).toHaveBeenCalledWith(cacheKey);
     });
   });
 
@@ -93,19 +97,19 @@ describe(SessionsCacheService.name, () => {
       const hashedRefreshToken = 'hashed-token';
 
       jest.spyOn(hashService, 'generate').mockReturnValue(hashedRefreshToken);
-      jest.spyOn(cacheService, 'set').mockResolvedValue(true);
+      jest.spyOn(redisService, 'set').mockResolvedValue(true);
 
       const result = await service.saveSessionInCache(user, refreshToken);
 
-      const cacheKey = `${REDIS_KEYS.REFRESH_TOKEN_PREFIX}${hashedRefreshToken}`;
+      const cacheKey = `${SESSION_REDIS_KEYS.REFRESH_TOKEN_PREFIX}${hashedRefreshToken}`;
       const cacheValue = user.id.value;
 
       expect(result).toBe(true);
       expect(hashService.generate).toHaveBeenCalledWith(refreshToken.token);
-      expect(cacheService.set).toHaveBeenCalledWith(
+      expect(redisService.set).toHaveBeenCalledWith(
         cacheKey,
         cacheValue,
-        EXPIRATION_TTL,
+        SESSION_EXPIRATION_TTL,
       );
     });
   });
@@ -120,15 +124,15 @@ describe(SessionsCacheService.name, () => {
       const hashedPreviousToken = 'hashed-previous-token';
 
       jest.spyOn(hashService, 'generate').mockReturnValue(hashedPreviousToken);
-      jest.spyOn(cacheService, 'del').mockResolvedValue(true);
+      jest.spyOn(redisService, 'del').mockResolvedValue(true);
 
       const result = await service.deleteSessionFromCache(previousToken);
 
-      const cacheKey = `${REDIS_KEYS.REFRESH_TOKEN_PREFIX}${hashedPreviousToken}`;
+      const cacheKey = `${SESSION_REDIS_KEYS.REFRESH_TOKEN_PREFIX}${hashedPreviousToken}`;
 
       expect(result).toBe(true);
       expect(hashService.generate).toHaveBeenCalledWith(previousToken);
-      expect(cacheService.del).toHaveBeenCalledWith(cacheKey);
+      expect(redisService.del).toHaveBeenCalledWith(cacheKey);
     });
   });
 });

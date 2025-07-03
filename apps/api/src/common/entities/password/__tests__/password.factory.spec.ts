@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker/.';
-import { Password } from './password.entity';
-import { InvalidPasswordException } from './password.errors';
-import { PasswordFactory } from './password.factory';
+import { Password } from '../password.entity';
+import { InvalidPasswordException } from '../password.errors';
+import { PasswordFactory } from '../password.factory';
 
 describe(PasswordFactory.name, () => {
   describe('From method', () => {

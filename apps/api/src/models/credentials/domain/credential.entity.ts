@@ -65,4 +65,17 @@ export class CredentialEntity {
   ): CredentialEntity {
     return new CredentialEntity(id, userId, passwordHash);
   }
+
+  static patch(
+    original: CredentialEntity,
+    patch: Partial<CredentialEntity>,
+  ): CredentialEntity {
+    return new CredentialEntity(
+      original.id,
+      patch.userId ?? original.userId,
+      patch.passwordHash ?? original.passwordHash,
+      original.createdAt,
+      original.updatedAt,
+    );
+  }
 }

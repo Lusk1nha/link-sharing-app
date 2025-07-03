@@ -31,6 +31,14 @@ export class UUID {
     return typeof value === 'string' && isValidUUID(value.trim());
   }
 
+  public static equals(uuid1: UUID, uuid2: UUID): boolean {
+    if (!(uuid1 instanceof UUID) || !(uuid2 instanceof UUID)) {
+      throw new InvalidUuidException('Both arguments must be UUID instances');
+    }
+
+    return uuid1.value === uuid2.value;
+  }
+
   /**
    * Create a new UUID instance with a randomly generated value.
    */

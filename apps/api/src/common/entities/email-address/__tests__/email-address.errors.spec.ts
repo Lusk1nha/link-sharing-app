@@ -2,7 +2,7 @@ import { BaseHttpException } from 'src/common/exceptions/base-expections.common'
 import {
   EmptyEmailAddressException,
   InvalidEmailAddressException,
-} from './email-address.errors';
+} from '../email-address.errors';
 import { HttpStatus } from '@nestjs/common';
 
 describe(InvalidEmailAddressException.name, () => {

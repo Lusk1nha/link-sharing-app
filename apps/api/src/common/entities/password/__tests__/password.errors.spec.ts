@@ -2,7 +2,7 @@ import { BaseHttpException } from 'src/common/exceptions/base-expections.common'
 import {
   InvalidPasswordException,
   WeakPasswordException,
-} from './password.errors';
+} from '../password.errors';
 import { HttpStatus } from '@nestjs/common';
 
 describe(InvalidPasswordException.name, () => {

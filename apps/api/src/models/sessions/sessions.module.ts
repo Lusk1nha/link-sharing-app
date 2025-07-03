@@ -1,10 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { SessionsService } from './sessions.service';
-import { HashService } from '../hash/hash.service';
-import { TokenService } from '../token/token.service';
-import { SessionsCacheService } from '../sessions-cache/sessions-cache.service';
+import { SessionsCacheModule } from '../sessions-cache/sessions-cache.module';
+import { TokenModule } from '../token/token.module';
 
+@Global()
 @Module({
-  providers: [SessionsService, SessionsCacheService, HashService, TokenService],
+  imports: [SessionsCacheModule, TokenModule],
+  providers: [SessionsService],
+  exports: [SessionsService],
 })
 export class SessionsModule {}
