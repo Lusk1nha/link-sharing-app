@@ -44,6 +44,12 @@ jobs:
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: ${{ runner.os }}-turbo-
 
+  lint:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - run: pnpm turbo run lint
+
   # build:
   #   name: Build and Test
   #   timeout-minutes: 15
