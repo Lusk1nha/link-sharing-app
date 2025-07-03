@@ -1,6 +1,23 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "DATABASE_URL",
+    "APP_PORT",
+    "NODE_ENV",
+    "JWT_SECRET",
+    "JWT_REFRESH_SECRET",
+    "JWT_REFRESH_EXPIRATION",
+    "HMAC_SECRET",
+    "EMAIL_FROM_ADDRESS",
+    "EMAIL_HOST",
+    "EMAIL_PORT",
+    "EMAIL_USERNAME",
+    "EMAIL_PASSWORD",
+    "REDIS_HOST",
+    "REDIS_PORT"
+  ],
+
   "tasks": {
     "build": {
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
