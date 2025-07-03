@@ -11,6 +11,7 @@ env:
 
 jobs:
   setup: # job “pré‑requisito” → instala e cacheia
+    name: Setup Dependencies
     runs-on: ubuntu-latest
     outputs:
       pnpm-store: ${{ steps.pnpm-cache.outputs.cache-hit }}
@@ -45,10 +46,25 @@ jobs:
           restore-keys: ${{ runner.os }}-turbo-
 
   lint:
+    name: Lint Code
     needs: setup
     runs-on: ubuntu-latest
     steps:
-      - run: pnpm turbo run lint
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.7.1 }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install deps
+        run: pnpm install
+
+      - name: Run Lint
+        run: pnpm turbo run lint
 
   # build:
   #   name: Build and Test
