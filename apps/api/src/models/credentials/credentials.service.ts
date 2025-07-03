@@ -123,7 +123,7 @@ export class CredentialsService {
       `Attempting to update credentials for userId=${userId.value}`,
     );
 
-    return this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx) => {
       const credential = await this.findByUserIdOrThrow(userId);
 
       const patched = CredentialEntity.patch(credential, {
