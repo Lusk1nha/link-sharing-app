@@ -196,18 +196,6 @@ describe(UsersController.name, () => {
     });
 
     it(`should validate request dto`, async () => {
-      const mockUser = generateSingleMockUser();
-
-      const jwtUserPayload: JwtStoredPayload = {
-        sub: mockUser.id,
-        email: mockUser.email,
-        roles: [Role.User],
-        aud: 'api',
-        iat: Date.now(),
-        exp: Date.now() + 3600,
-        iss: 'test-issuer',
-      };
-
       let target: ValidationPipe = new ValidationPipe({
         transform: true,
         whitelist: true,
