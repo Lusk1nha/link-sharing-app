@@ -8,7 +8,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "nest build",
+    "build": "pnpm dlx prisma generate & nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "dev": "nest start --watch",
