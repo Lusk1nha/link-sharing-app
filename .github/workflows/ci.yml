@@ -112,6 +112,7 @@ jobs:
         run: pnpm turbo run build
 
   test:
+    name: Run Tests
     needs: build
     runs-on: ubuntu-latest
     env:
