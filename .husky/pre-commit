@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+pnpm validate || {
+  echo "Validation failed. Please fix the issues before committing."
+  exit 1
+}
