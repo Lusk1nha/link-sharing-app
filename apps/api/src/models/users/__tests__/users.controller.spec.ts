@@ -23,6 +23,11 @@ describe(UsersController.name, () => {
   let usersService: UsersService;
   let prismaService: PrismaService;
 
+  beforeAll(() => {
+    process.env.HMAC_SECRET = 'ci-secret';
+    process.env.HMAC_ALGORITHM = 'sha256';
+  });
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
@@ -33,6 +38,7 @@ describe(UsersController.name, () => {
         }),
         ConfigModule.forRoot({
           isGlobal: true,
+          ignoreEnvFile: true,
         }),
       ],
       controllers: [UsersController],

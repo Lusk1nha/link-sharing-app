@@ -25,9 +25,9 @@ describe(CredentialsController.name, () => {
   let credentialsService: CredentialsService;
   let passwordService: PasswordService;
 
-  beforeEach(() => {
-    jest.clearAllMocks(); // zera contadores entre testes
-    jest.resetAllMocks(); // remove implementações anteriores
+  beforeAll(() => {
+    process.env.HMAC_SECRET = 'ci-secret'; // ← define ANTES
+    process.env.HMAC_ALGORITHM = 'sha256';
   });
 
   beforeEach(async () => {
@@ -40,6 +40,7 @@ describe(CredentialsController.name, () => {
         }),
         ConfigModule.forRoot({
           isGlobal: true,
+          ignoreEnvFile: true,
         }),
         PasswordModule,
       ],
@@ -85,6 +86,7 @@ describe(CredentialsController.name, () => {
       const body: UpdateCredentialDto = {
         password: faker.internet.password({
           pattern: /[A-Za-z0-9!@#$%^&*()_+]/,
+          length: 30,
         }),
       };
 

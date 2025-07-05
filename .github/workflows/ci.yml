@@ -87,7 +87,7 @@ jobs:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
       JWT_REFRESH_EXPIRATION: '7d'
-      HMAC_SECRET: 'teste-secreto-para-hmac'
+      HMAC_SECRET: ${{ secrets.HMAC_SECRET }}
       HMAC_ALGORITHM: 'sha256'
 
       EMAIL_FROM_ADDRESS: ${{ secrets.EMAIL_FROM_ADDRESS }}
