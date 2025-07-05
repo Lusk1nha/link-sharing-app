@@ -38,7 +38,6 @@ const validationSchema = Joi.object({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
       load: [configuration],
       validationSchema,
     }),
