@@ -8,6 +8,7 @@ on:
 
 env:
   TURBO_CACHE_DIR: .turbo
+  # Vars não sensíveis usadas em todos os jobs
   APP_PORT: 8000
   APP_NAME: 'Link Sharing App'
   APP_DESCRIPTION: 'A simple app for sharing links'
@@ -21,7 +22,8 @@ jobs:
     name: Lint Code
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/common-setup
+      - uses: actions/checkout@v4 # ➊ checkout obrigatório antes da action local
+      - uses: ./.github/actions/common-setup # ➋ composite action
       - run: pnpm install --frozen-lockfile
       - run: pnpm turbo run lint --filter=...[HEAD^]
 
@@ -35,7 +37,6 @@ jobs:
       SERVICE_NAME: 'Link Sharing API'
       SERVICE_DESCRIPTION: 'A simple API for sharing links'
       SERVICE_VERSION: '0.0.1'
-      # sensitive via secrets
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
       JWT_REFRESH_EXPIRATION: '7d'
@@ -46,7 +47,9 @@ jobs:
       EMAIL_PORT: 465
       EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
       EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/common-setup
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter=api exec prisma generate
@@ -64,19 +67,19 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: 'file:./tmp/ci.sqlite'
-      # reuse same secrets as build
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
       JWT_REFRESH_EXPIRATION: '7d'
       HMAC_SECRET: ${{ secrets.HMAC_SECRET }}
       HMAC_ALGORITHM: 'sha256'
     steps:
+      - uses: actions/checkout@v4
       - uses: ./.github/actions/common-setup
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter=api exec prisma generate
       - run: pnpm turbo run test --filter=api -- --runInBand
       - name: Upload coverage
-        if: always()
+        if: always() && hashFiles('**/coverage/**') != ''
         uses: actions/upload-artifact@v4
         with:
           name: coverage
