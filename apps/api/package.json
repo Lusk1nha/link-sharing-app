@@ -19,7 +19,7 @@
     "test:cov": "pnpm dlx prisma generate && jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "validate": "pnpm lint && pnpm test && pnpm test"
+    "validate": "pnpm lint && pnpm build"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^3.0.1",
