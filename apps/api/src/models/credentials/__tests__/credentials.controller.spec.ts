@@ -3,7 +3,7 @@ import { CredentialsController } from '../credentials.controller';
 import { CredentialsService } from '../credentials.service';
 
 import { PasswordModule } from 'src/models/password/password.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from 'src/common/database/database.service';
 import { RolesModule } from 'src/models/roles/roles.module';
 import { SessionsModule } from 'src/models/sessions/sessions.module';
