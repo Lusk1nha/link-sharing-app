@@ -48,6 +48,9 @@
       "outputs": ["coverage/**"],
       "dependsOn": ["^build"]
     },
+    "validate": {
+      "dependsOn": ["^build", "^lint"]
+    },
     "lint": {
       "dependsOn": ["^build", "^lint"]
     },
