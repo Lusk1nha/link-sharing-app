@@ -2,25 +2,22 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaTransaction } from 'src/common/database/__types__/database.types';
 import { PrismaService } from 'src/common/database/database.service';
 import { AuthProviderEntity } from './domain/auth-providers.entity';
-import { Prisma } from '@prisma/client';
+import { AuthProvider, Prisma } from '@prisma/client';
 import { AuthProviderMapper } from './domain/auth-providers.mapper';
 import {
   AuthProviderAlreadyExistsException,
   AuthProviderNotFoundForUserException,
 } from './auth-providers.errors';
 import { UUID } from 'src/common/entities/uuid/uuid.entity';
+import { PrismaBaseService } from 'src/common/database/database-base.service';
 
 @Injectable()
-export class AuthProviderService {
+export class AuthProviderService extends PrismaBaseService<AuthProvider> {
+  protected readonly modelName = 'authProvider';
   private readonly logger = new Logger(AuthProviderService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
-
-  /**
-   * Resolves the Prisma client or transaction.
-   */
-  private client(tx?: PrismaTransaction) {
-    return tx ?? this.prisma;
+  constructor(protected readonly prisma: PrismaService) {
+    super(prisma);
   }
 
   private async findMany(

@@ -28,6 +28,7 @@ import { JwtModule } from '@nestjs/jwt';
 import tokenConstants from 'src/models/token/token.constants';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
+import { ProfileModule } from 'src/models/profile/profile.module';
 
 const validationSchema = Joi.object({
   APP_PORT: Joi.number().integer().positive().default(3000),
@@ -67,6 +68,7 @@ const validationSchema = Joi.object({
     AdminModule,
     AuthProviderModule,
     RolesModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

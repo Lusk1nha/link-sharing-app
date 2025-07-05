@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UUID } from 'src/common/entities/uuid/uuid.entity';
-import { InvalidUuidException } from 'src/common/entities/uuid/uuid.errors';
 
 export class CredentialEntity {
   constructor(
@@ -10,14 +9,6 @@ export class CredentialEntity {
     createdAt?: Date,
     updatedAt?: Date,
   ) {
-    if (!(id instanceof UUID)) {
-      throw new InvalidUuidException();
-    }
-
-    if (!(userId instanceof UUID)) {
-      throw new InvalidUuidException();
-    }
-
     this.id = id;
     this.userId = userId;
     this.passwordHash = passwordHash;
