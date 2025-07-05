@@ -58,20 +58,6 @@ describe(CredentialsController.name, () => {
           },
         },
         PrismaService,
-        {
-          provide: ConfigService,
-          useValue: {
-            get: jest.fn((key: string) => {
-              const config = {
-                HMAC_SECRET:
-                  'e7aa5198d9e3440b56a82c100aed95325f0aa3b3c019f36ce8f95ac2',
-                HMAC_ALGORITHM: 'sha256',
-              };
-
-              return config[key];
-            }),
-          },
-        },
       ],
     }).compile();
 
