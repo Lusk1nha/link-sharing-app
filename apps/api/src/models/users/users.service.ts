@@ -10,15 +10,19 @@ import {
 import { UserEntity } from './domain/user.entity';
 import { UserMapper } from './domain/user.mapper';
 import { PrismaTransaction } from 'src/common/database/__types__/database.types';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { EmailAddressFactory } from 'src/common/entities/email-address/email-address.factory';
+import { PrismaBaseService } from 'src/common/database/database-base.service';
 
 @Injectable()
-export class UsersService {
+export class UsersService extends PrismaBaseService<User> {
+  protected readonly modelName = 'user';
   private readonly logger = new Logger(UsersService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(protected readonly prisma: PrismaService) {
+    super(prisma);
+  }
 
   /**
    * Retrieves a user by unique criteria, mapping to domain or returning null.
@@ -60,13 +64,6 @@ export class UsersService {
     });
 
     return UserMapper.toDomain(record);
-  }
-
-  /**
-   * Resolves the Prisma client, using transaction if provided.
-   */
-  private client(tx?: PrismaTransaction) {
-    return tx ?? this.prisma;
   }
 
   /**

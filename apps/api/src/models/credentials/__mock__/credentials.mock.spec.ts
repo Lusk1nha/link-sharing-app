@@ -18,6 +18,15 @@ describe('Credential Mock Generator', () => {
       expect(credentials[0]).toHaveProperty('createdAt');
       expect(credentials[0]).toHaveProperty('updatedAt');
     });
+
+    it('should generate credentials with overridden properties', () => {
+      const overrides = { userId: 'custom-user-id' };
+      const credentials = generateMockCredentials(3, overrides);
+      expect(credentials).toHaveLength(3);
+      credentials.forEach((credential) => {
+        expect(credential.userId).toBe(overrides.userId);
+      });
+    });
   });
 
   describe('generateSingleMockCredential', () => {
@@ -32,6 +41,12 @@ describe('Credential Mock Generator', () => {
       expect(credential).toHaveProperty('passwordHash');
       expect(credential).toHaveProperty('createdAt');
       expect(credential).toHaveProperty('updatedAt');
+    });
+
+    it('should generate a single credential with overridden properties', () => {
+      const overrides = { userId: 'custom-user-id' };
+      const credential = generateSingleMockCredential(overrides);
+      expect(credential.userId).toBe(overrides.userId);
     });
   });
 });

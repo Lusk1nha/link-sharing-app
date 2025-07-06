@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdateCredentialDto {
   @ApiProperty({
@@ -8,13 +8,6 @@ export class UpdateCredentialDto {
     required: true,
   })
   @IsString()
-  @IsStrongPassword(
-    {},
-    {
-      message:
-        'Password must be a strong password with at least 8 characters, including uppercase, lowercase, numbers, and symbols.',
-    },
-  )
   @IsNotEmpty({
     message: 'Password is required',
   })

@@ -9,19 +9,17 @@ import {
   CredentialNotFoundException,
 } from './credentials.errors';
 import { PrismaTransaction } from 'src/common/database/__types__/database.types';
-import { Prisma } from '@prisma/client';
+import { Credential, Prisma } from '@prisma/client';
+import { PrismaBaseService } from 'src/common/database/database-base.service';
 
 @Injectable()
-export class CredentialsService {
+export class CredentialsService extends PrismaBaseService<Credential> {
+  protected readonly modelName = 'credential';
+
   private readonly logger = new Logger(CredentialsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
-
-  /**
-   * Resolves the Prisma client or transaction.
-   */
-  private client(tx?: PrismaTransaction) {
-    return tx ?? this.prisma;
+  constructor(protected readonly prisma: PrismaService) {
+    super(prisma);
   }
 
   /**

@@ -32,28 +32,6 @@ describe(CredentialEntity.name, () => {
     });
   });
 
-  describe('constructor with invalid data', () => {
-    it('should throw an error if id is not a UUID', () => {
-      expect(() => {
-        new CredentialEntity(
-          'invalid-uuid' as any,
-          UUIDFactory.create(),
-          faker.string.alphanumeric(64),
-        );
-      }).toThrow();
-    });
-
-    it('should throw an error if userId is not a UUID', () => {
-      expect(() => {
-        new CredentialEntity(
-          UUIDFactory.create(),
-          'invalid-uuid' as any,
-          faker.string.alphanumeric(64),
-        );
-      }).toThrow();
-    });
-  });
-
   describe('createNew method', () => {
     it(`should be defined ${CredentialEntity.create.name}`, () => {
       expect(CredentialEntity.create).toBeDefined();

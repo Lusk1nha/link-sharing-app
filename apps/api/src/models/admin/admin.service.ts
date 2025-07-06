@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Admin, Prisma } from '@prisma/client';
 import { PrismaTransaction } from 'src/common/database/__types__/database.types';
 import { PrismaService } from 'src/common/database/database.service';
 import { UUID } from 'src/common/entities/uuid/uuid.entity';
@@ -9,12 +9,16 @@ import {
   AdminAlreadyExistsException,
   AdminNotFoundException,
 } from './admin.errors';
+import { PrismaBaseService } from 'src/common/database/database-base.service';
 
 @Injectable()
-export class AdminService {
+export class AdminService extends PrismaBaseService<Admin> {
+  protected readonly modelName = 'admin';
   private readonly logger = new Logger(AdminService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(protected readonly prisma: PrismaService) {
+    super(prisma);
+  }
 
   /**
    * Retrieves an admin by unique criteria, mapping to domain or returning null.
@@ -24,13 +28,6 @@ export class AdminService {
   ): Promise<AdminEntity | null> {
     const record = await this.prisma.admin.findUnique({ where });
     return record ? AdminMapper.toDomain(record) : null;
-  }
-
-  /**
-   * Resolves the Prisma client, using transaction if provided.
-   */
-  private client(tx?: PrismaTransaction) {
-    return tx ?? this.prisma;
   }
 
   /**
