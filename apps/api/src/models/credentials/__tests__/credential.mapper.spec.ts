@@ -18,4 +18,17 @@ describe(CredentialMapper.name, () => {
       expect(credentialEntity.passwordHash).toEqual(rawCredential.passwordHash);
     });
   });
+
+  describe('toModel', () => {
+    it('should map domain entity to model', () => {
+      const rawCredential = generateSingleMockCredential();
+      const credentialEntity = CredentialMapper.toDomain(rawCredential);
+      const model = CredentialMapper.toModel(credentialEntity);
+
+      expect(model).toBeDefined();
+      expect(model.id).toEqual(credentialEntity.id.value);
+      expect(model.userId).toEqual(credentialEntity.userId.value);
+      expect(model.password_hash).toEqual(credentialEntity.passwordHash);
+    });
+  });
 });

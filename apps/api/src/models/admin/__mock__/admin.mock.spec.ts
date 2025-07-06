@@ -14,6 +14,15 @@ describe('Admin Mock Generator', () => {
       expect(admins[0]).toHaveProperty('createdAt');
       expect(admins[0]).toHaveProperty('updatedAt');
     });
+
+    it('should generate admins with overridden properties', () => {
+      const overrides = { userId: 'custom-user-id' };
+      const admins = generateMockAdmins(3, overrides);
+      expect(admins).toHaveLength(3);
+      admins.forEach((admin) => {
+        expect(admin.userId).toBe(overrides.userId);
+      });
+    });
   });
 
   describe('generateSingleMockAdmin', () => {
@@ -27,6 +36,12 @@ describe('Admin Mock Generator', () => {
       expect(admin).toHaveProperty('userId');
       expect(admin).toHaveProperty('createdAt');
       expect(admin).toHaveProperty('updatedAt');
+    });
+
+    it('should generate a single admin with overridden properties', () => {
+      const overrides = { userId: 'custom-user-id' };
+      const admin = generateSingleMockAdmin(overrides);
+      expect(admin.userId).toBe(overrides.userId);
     });
   });
 });

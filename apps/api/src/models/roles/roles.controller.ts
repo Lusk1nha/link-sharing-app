@@ -43,7 +43,7 @@ export class RolesController {
     summary: 'Get user roles by ID',
     description: 'Get the roles of a user by their ID',
   })
-  async getUserRoles(
+  async getUserRolesById(
     @UUIDParam('id') userId: UUID,
     @GetAuthUser() currentUser: JwtStoredPayload,
   ): Promise<GetUserRolesByIdResponseDto> {
