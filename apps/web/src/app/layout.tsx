@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import '@link-sharing-app/design-system/styles.css';
 import '@link-sharing-app/ui/styles.css';
 import './styles.css';
+import React from 'react';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -15,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>{children}</body>
     </html>
   );
