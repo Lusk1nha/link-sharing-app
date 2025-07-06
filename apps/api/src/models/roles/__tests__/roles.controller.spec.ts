@@ -19,6 +19,11 @@ describe(RolesController.name, () => {
   let rolesService: RolesService;
   let usersService: UsersService;
 
+  beforeAll(() => {
+    process.env.HMAC_SECRET = 'ci-secret'; // ← define ANTES
+    process.env.HMAC_ALGORITHM = 'sha256';
+  });
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
