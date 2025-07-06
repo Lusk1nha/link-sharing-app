@@ -1,2 +1,96 @@
 @theme {
+  /* Neutral Palette */
+  --color-system-neutral-black: #000000;
+  --color-system-neutral-950: #1a1a1a; /* Grey 950 */
+  --color-system-neutral-900: #333333; /* Grey 900 */
+  --color-system-neutral-500: #737373; /* Grey 500 */
+  --color-system-neutral-200: #d9d9d9; /* Grey 200 */
+  --color-system-neutral-100: #eeeeee; /* Grey 100 */
+  --color-system-neutral-50: #fafafa; /* Grey 50 */
+  --color-system-neutral-0: #ffffff; /* White   */
+
+  /* Blue Palette */
+  --color-system-blue-800: #0330d1; /* Blue 800 */
+  --color-system-blue-500: #2d68ff; /* Blue 500 */
+
+  /* Purple Palette */
+  --color-system-purple-950: #302267; /* Purple 950 */
+  --color-system-purple-600: #633cff; /* Purple 600 */
+  --color-system-purple-300: #beadff; /* Purple 300 */
+
+  /* Red Palette */
+  --color-system-red-550: #ee3939; /* Red 550 */
+  --color-system-red-500: #ff3939; /* Red 500 */
+
+  /* Pink Palette */
+  --color-system-pink-900: #8a1a50; /* Pink 900 */
+  --color-system-pink-400: #f4a28c; /* Pink 400 */
+
+  /* Orange Palette */
+  --color-system-orange-600: #ec7100; /* Orange 600 */
+  --color-system-orange-500: #eb4925; /* Orange 500 */
+
+  /* Spacing */
+  --spacing-0: 0rem; /* 0px */
+  --spacing-025: 0.125rem; /* 2px */
+  --spacing-050: 0.25rem; /* 4px */
+  --spacing-075: 0.375rem; /* 6px */
+  --spacing-100: 0.5rem; /* 8px */
+  --spacing-125: 0.625rem; /* 10px */
+  --spacing-150: 0.75rem; /* 12px */
+  --spacing-200: 1rem; /* 16px */
+  --spacing-250: 1.25rem; /* 20px */
+  --spacing-300: 1.5rem; /* 24px */
+  --spacing-400: 2rem; /* 32px */
+  --spacing-500: 2.5rem; /* 40px */
+  --spacing-600: 3rem; /* 48px */
+  --spacing-800: 4rem; /* 64px */
+  --spacing-1000: 5rem; /* 80px */
+
+  /* Radius */
+  --radius-0: 0rem; /* 0px */
+  --radius-4: 0.25rem; /* 4px */
+  --radius-6: 0.375rem; /* 6px */
+  --radius-8: 0.5rem; /* 8px */
+  --radius-10: 0.625rem; /* 10px */
+  --radius-12: 0.75rem; /* 12px */
+  --radius-16: 1rem; /* 16px */
+  --radius-20: 1.25rem; /* 20px */
+  --radius-24: 1.5rem; /* 24px */
+
+  /* Preset 1 (32 px / Bold) */
+  --text-preset-1: 2rem; /* 32 px  */
+  --text-preset-1--line-height: 3rem; /* 150%  */
+  --text-preset-1--letter-spacing: 0rem;
+  --text-preset-1--font-weight: 700; /* Bold   */
+
+  /* Preset 2 (24 px / Bold) */
+  --text-preset-2: 1.5rem; /* 24 px  */
+  --text-preset-2--line-height: 2.25rem; /* 150% */
+  --text-preset-2--letter-spacing: 0rem;
+  --text-preset-2--font-weight: 700; /* Bold  */
+
+  /* Preset 3 – Bold (16 px) */
+  --text-preset-3-bold: 1rem; /* 16 px  */
+  --text-preset-3-bold--line-height: 1.5rem; /* 150% */
+  --text-preset-3-bold--letter-spacing: 0rem;
+  --text-preset-3-bold--font-weight: 700; /* Bold  */
+
+  /* Preset 3 – SemiBold (16 px) */
+  --text-preset-3-semibold: 1rem; /* 16 px  */
+  --text-preset-3-semibold--line-height: 1.5rem; /* 150% */
+  --text-preset-3-semibold--letter-spacing: 0rem;
+  --text-preset-3-semibold--font-weight: 600; /* SemiBold */
+
+  /* Preset 3 – Regular (16 px) */
+  --text-preset-3-regular: 1rem; /* 16 px  */
+  --text-preset-3-regular--line-height: 1.5rem; /* 150% */
+  --text-preset-3-regular--letter-spacing: 0rem;
+  --text-preset-3-regular--font-weight: 400; /* Regular */
+
+  /* Preset 4 (12 px / Regular) */
+  --text-preset-4: 0.75rem; /* 12 px  */
+  --text-preset-4--line-height: 1.125rem; /* 150% */
+  --text-preset-4--letter-spacing: 0rem;
+  --text-preset-4--font-weight: 400; /* Regular */
 }

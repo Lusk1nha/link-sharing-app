@@ -2,10 +2,16 @@
 @import '@link-sharing-app/ui/theme.css';
 
 @theme {
+  --color-auth-background: var(--theme-auth-background);
+  --color-logo-name: var(--theme-logo-name);
+  --color-logo-icon: var(--theme-logo-icon);
 }
 
 @layer base {
   :root {
+    --theme-auth-background: var(--color-system-neutral-50);
+    --theme-logo-name: var(--color-system-neutral-900);
+    --theme-logo-icon: var(--color-system-purple-600);
   }
 
   [data-theme='dark'] {

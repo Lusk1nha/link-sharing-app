@@ -23,6 +23,7 @@
     "@link-sharing-app/design-system": "workspace:*",
     "@link-sharing-app/ui": "workspace:*",
     "next": "15.3.5",
+    "next-themes": "^0.4.6",
     "postcss": "^8.5.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

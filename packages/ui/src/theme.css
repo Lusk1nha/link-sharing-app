@@ -1,10 +1,12 @@
 @import "@link-sharing-app/design-system/theme.css";
 
 @theme {
+  --color-card-background: var(--theme-card-background);
 }
 
 @layer base {
   :root {
+    --theme-card-background: var(--color-system-neutral-0);
   }
 
   [data-theme="dark"] {
