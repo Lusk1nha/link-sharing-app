@@ -22,13 +22,13 @@ ARG DATABASE_URL="file:./dummy.db"
 ENV DATABASE_URL=${DATABASE_URL}
 
 COPY .gitignore .gitignore
-# COPY reset.d.ts reset.d.ts # only if you're using ts-reset library
+
 COPY --from=builder /usr/src/app/out/json/ .
 COPY --from=builder /usr/src/app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=builder /usr/src/app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=builder /usr/src/app/out/full/ .
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 COPY turbo.json turbo.json
 RUN npx prisma generate --schema apps/api/src/prisma/schema.prisma
 RUN turbo run build --filter=@link-sharing-app/api...

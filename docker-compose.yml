@@ -31,8 +31,18 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-    volumes:
-      - ./src:/app/src
+
+  web:
+    container_name: web-app
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    env_file:
+      - ./apps/web/.env
+    environment:
+      NODE_ENV: production
+    ports:
+      - "${WEB_PORT:-3000}:3000"
 
 volumes:
   redis-data:
