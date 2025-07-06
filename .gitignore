@@ -13,9 +13,7 @@ dist-ssr
 *.local
 *.pnpm-store
 .turbo
-.turbo/*
-*.turbo
-
+out
 
 # Editor directories and files
 .vscode/*

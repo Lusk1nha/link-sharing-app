@@ -1,6 +1,7 @@
 {
   "name": "link-sharing-app",
   "private": true,
+  "author": "Lucas Pedro da Hora <lucaspedro517@gmail.com>",
   "scripts": {
     "prepare": "husky",
     "build": "turbo run build",
