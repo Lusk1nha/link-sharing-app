@@ -1,0 +1,13 @@
+@import '@link-sharing-app/design-system/theme.css';
+@import '@link-sharing-app/ui/theme.css';
+
+@theme {
+}
+
+@layer base {
+  :root {
+  }
+
+  [data-theme='dark'] {
+  }
+}

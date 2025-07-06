@@ -1,5 +1,7 @@
-node_modules
-dist
+**/node_modules
+**/.pnpm
+**/.turbo           # cache do TurboRepo
+**/dist
+**/.next
 *.log
-.env
-.git
+.env*
