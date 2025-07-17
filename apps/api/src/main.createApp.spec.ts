@@ -4,10 +4,12 @@ import { AppModule } from './app/app.module';
 import { setupApp } from './common/setup/app/app.setup';
 import { setupSwagger } from './common/setup/swagger/swagger.setup';
 import { Logger } from '@nestjs/common';
+import { setupMicroservices } from './common/setup/microservices/microservices.setup';
 
 jest.mock('@nestjs/core');
 jest.mock('./common/setup/app/app.setup');
 jest.mock('./common/setup/swagger/swagger.setup');
+jest.mock('./common/setup/microservices/microservices.setup');
 
 describe('Bootstrap createApp', () => {
   let mockApp: any;
@@ -30,7 +32,10 @@ describe('Bootstrap createApp', () => {
 
     expect(NestFactory.create).toHaveBeenCalledWith(AppModule, { cors: true });
     expect(setupApp).toHaveBeenCalledWith(app, logger);
+    expect(setupMicroservices).toHaveBeenCalledWith(app, logger);
     expect(setupSwagger).toHaveBeenCalledWith(app, logger);
+
+    expect(app.listen).toBe(mockApp.listen);
     expect(app).toBe(mockApp);
   });
 

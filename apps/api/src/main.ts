@@ -1,8 +1,9 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app/app.module';
 import { setupApp } from './common/setup/app/app.setup';
 import { setupSwagger } from './common/setup/swagger/swagger.setup';
 import { Logger, INestApplication } from '@nestjs/common';
+import { setupMicroservices } from './common/setup/microservices/microservices.setup';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app/app.module';
 
 export async function createApp(
   logger = new Logger('Bootstrap'),
@@ -12,13 +13,17 @@ export async function createApp(
   const app = await NestFactory.create(AppModule, { cors: true });
 
   setupApp(app, logger);
-  setupSwagger(app, logger);
+  await setupMicroservices(app, logger);
+
+  if (process.env.NODE_ENV !== 'production') {
+    setupSwagger(app, logger);
+  }
 
   return app;
 }
 
 export async function bootstrap(): Promise<void> {
-  const port = process.env.APP_PORT ?? '3000';
+  const port = process.env.APP_PORT ?? '8000';
   const environment = process.env.NODE_ENV ?? 'development';
   const logger = new Logger('Bootstrap');
 

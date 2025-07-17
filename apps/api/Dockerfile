@@ -18,7 +18,7 @@ RUN turbo prune --scope=@link-sharing-app/api --docker
 FROM base AS installer
 WORKDIR /usr/src/app
 
-ARG DATABASE_URL="file:./dummy.db"
+ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
 
 COPY .gitignore .gitignore
@@ -50,5 +50,4 @@ COPY --from=installer --chown=nodejs:nodejs /usr/src/app/packages ./packages
 
 USER nodejs
 WORKDIR /usr/src/app/apps/api
-RUN npx prisma generate
-CMD node dist/main.js
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]

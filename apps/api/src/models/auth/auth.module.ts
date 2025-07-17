@@ -7,6 +7,15 @@ import { CredentialsModule } from '../credentials/credentials.module';
 import { PasswordModule } from '../password/password.module';
 import { SessionsModule } from '../sessions/sessions.module';
 import { AuthProviderModule } from '../auth-providers/auth-providers.module';
+import {
+  RABBITMQ_CLIENT_CONFIG,
+  RABBITMQ_MANAGER,
+} from 'src/common/rabbitmq/domain/rabbitmq.injects';
+import { RabbitMQService } from 'src/common/rabbitmq/rabbitmq.service';
+import { rabbitMQConfig } from 'src/common/rabbitmq/rabbitmq.config';
+import { RABBITMQ_CONSTANTS } from 'src/common/rabbitmq/rabbitmq.constants';
+import { AuthConsumer } from './auth.consumer';
+import { AuthValidatorService } from './auth.validator';
 
 @Module({
   imports: [
@@ -16,8 +25,24 @@ import { AuthProviderModule } from '../auth-providers/auth-providers.module';
     PasswordModule,
     SessionsModule,
   ],
-  controllers: [AuthController],
-  providers: [AuthService, PrismaService],
+  controllers: [AuthController, AuthConsumer],
+  providers: [
+    AuthService,
+    AuthValidatorService,
+    PrismaService,
+
+    {
+      provide: RABBITMQ_MANAGER,
+      useClass: RabbitMQService,
+    },
+    {
+      provide: RABBITMQ_CLIENT_CONFIG,
+      useValue: rabbitMQConfig({
+        queue: RABBITMQ_CONSTANTS.AUTH_QUEUE,
+        queueOptions: { durable: false },
+      }),
+    },
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

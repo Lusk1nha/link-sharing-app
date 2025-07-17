@@ -55,6 +55,7 @@ const validationSchema = Joi.object({
     }),
 
     RedisCacheModule,
+
     HealthModule,
     MemoryUsageModule,
     UsersModule,

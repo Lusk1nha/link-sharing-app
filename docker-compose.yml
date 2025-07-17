@@ -1,7 +1,51 @@
+
+volumes:
+  redis-data:
+    driver: local
+  pgdata:
+    driver: local
+
+networks:
+  shared-network:
+    driver: bridge
+
 services:
+  postgres:
+    image: postgres
+    container_name: api-database
+    restart: unless-stopped
+    env_file:
+      - ./apps/api/.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ${POSTGRES_DB:-link_sharing_app}"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - shared-network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=teste@teste.com
+      - PGADMIN_DEFAULT_PASSWORD=teste
+    ports:
+      - 16543:80
+    depends_on:
+      - postgres
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
+    networks:
+      - shared-network
+
   redis:
     image: redis:7-alpine        
-    container_name: api-caching
+    container_name: redis-server
     restart: unless-stopped
     env_file:
       - ./apps/api/.env
@@ -16,35 +60,55 @@ services:
       retries: 5
       start_period: 10s
 
-  api:
-    container_name: api-server
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq-server
+    ports:
+      - "5672:5672"    
+      - "15672:15672"  
+    tty: true
+    stdin_open: true
     env_file:
       - ./apps/api/.env
-    environment:
-      NODE_ENV: production     
-      REDIS_HOST: redis       
-    ports:
-      - "${APP_PORT:-8000}:8000"
-    depends_on:
-      redis:
-        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - shared-network
 
-  web:
-    container_name: web-app
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-    env_file:
-      - ./apps/web/.env
-    environment:
-      NODE_ENV: production
-    ports:
-      - "${WEB_PORT:-3000}:3000"
+  # api:
+  #   container_name: api-app
+  #   build:
+  #     context: .
+  #     dockerfile: apps/api/Dockerfile
+  #   env_file:
+  #     - ./apps/api/.env
+  #   environment:
+  #     NODE_ENV: production     
+  #     REDIS_HOST: redis
 
-volumes:
-  redis-data:
-    driver: local
-    
+  #   ports:
+  #     - "${APP_PORT:-8000}:8000"
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - shared-network
+
+  # web:
+  #   container_name: web-app
+  #   build:
+  #     context: .
+  #     dockerfile: apps/web/Dockerfile
+  #   env_file:
+  #     - ./apps/web/.env
+  #   environment:
+  #     NODE_ENV: production
+  #   ports:
+  #     - "${WEB_PORT:-3000}:3000"
+  #   networks:
+  #     - shared-network

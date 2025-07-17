@@ -53,6 +53,9 @@ describe(UserMapper.name, () => {
       expect(rawUser).toEqual({
         id: userEntity.id.value,
         email: userEntity.email.value,
+        isActive: userEntity.isActive,
+        createdAt: userEntity.createdAt,
+        updatedAt: userEntity.updatedAt,
       });
     });
   });
