@@ -96,6 +96,8 @@ export class AuthService {
       `[login] User logged in with email=${emailVo.value} and userId=${user.id.value}`,
     );
 
+    this.emitUserLoginEvent(user);
+
     return {
       user,
       accessToken,
@@ -141,7 +143,11 @@ export class AuthService {
 
   private emitUserRegisteredEvent(user: UserEntity): void {
     const model = UserMapper.toModel(user);
-
     this.rabbitMQService.publish('auth.user.registered', model);
+  }
+
+  private emitUserLoginEvent(user: UserEntity): void {
+    const model = UserMapper.toModel(user);
+    this.rabbitMQService.publish('auth.user.login', model);
   }
 }

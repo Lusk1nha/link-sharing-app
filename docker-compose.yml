@@ -78,6 +78,14 @@ services:
     networks:
       - shared-network
 
+  fake-smtp-server:
+    image: haravich/fake-smtp-server
+    ports:
+      - "1025:1025"
+      - "1080:1080"
+    networks:
+      - shared-network
+
   # api:
   #   container_name: api-app
   #   build:

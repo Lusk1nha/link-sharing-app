@@ -16,6 +16,9 @@ import { rabbitMQConfig } from 'src/common/rabbitmq/rabbitmq.config';
 import { RABBITMQ_CONSTANTS } from 'src/common/rabbitmq/rabbitmq.constants';
 import { AuthConsumer } from './auth.consumer';
 import { AuthValidatorService } from './auth.validator';
+import { MailService } from 'src/common/mail/mail.service';
+import { TEMPLATE_MAP } from 'src/common/mail/domain/mail.port';
+import { AUTH_TEMPLATES_MAP } from './auth.templates';
 
 @Module({
   imports: [
@@ -41,6 +44,12 @@ import { AuthValidatorService } from './auth.validator';
         queue: RABBITMQ_CONSTANTS.AUTH_QUEUE,
         queueOptions: { durable: false },
       }),
+    },
+
+    MailService,
+    {
+      provide: TEMPLATE_MAP,
+      useValue: AUTH_TEMPLATES_MAP,
     },
   ],
   exports: [AuthService],
