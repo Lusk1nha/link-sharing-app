@@ -12,7 +12,7 @@ export class AuthConsumer {
 
   @EventPattern('auth.user.registered')
   async handleUserRegisteredEvent(data: User) {
-    this.mailService.send({
+    await this.mailService.send({
       template: 'auth-welcome',
       to: [EmailAddressFactory.from('lucaspedro517@gmail.com')],
       context: {
@@ -23,7 +23,7 @@ export class AuthConsumer {
 
   @EventPattern('auth.user.login')
   async handleUserLoginEvent(data: User) {
-    this.mailService.send({
+    await this.mailService.send({
       template: 'auth-login',
       to: [EmailAddressFactory.from('lucaspedro517@gmail.com')],
       context: {
