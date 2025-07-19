@@ -10,6 +10,7 @@ export async function setupMicroservices(
   logger.log('[setupMicroservices] Initializing microservices setup...');
 
   app.connectMicroservice<MicroserviceOptions>(createAuthRabbitMQConfig());
+  app.connectMicroservice<MicroserviceOptions>(createUserRabbitMQConfig());
 
   logger.log('[setupMicroservices] Connecting to RabbitMQ microservice...');
 
@@ -23,6 +24,13 @@ export async function setupMicroservices(
 function createAuthRabbitMQConfig() {
   return rabbitMQConfig({
     queue: RABBITMQ_CONSTANTS.AUTH_QUEUE,
+    queueOptions: { durable: false },
+  });
+}
+
+function createUserRabbitMQConfig() {
+  return rabbitMQConfig({
+    queue: RABBITMQ_CONSTANTS.USERS_QUEUE,
     queueOptions: { durable: false },
   });
 }

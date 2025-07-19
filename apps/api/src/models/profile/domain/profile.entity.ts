@@ -5,8 +5,8 @@ export class ProfileEntity {
     id: UUID,
     userId: UUID,
 
-    firstName: string,
-    lastName: string,
+    firstName?: string,
+    lastName?: string,
     imageUrl?: string,
 
     createdAt?: Date,
@@ -23,8 +23,8 @@ export class ProfileEntity {
 
   public readonly id: UUID;
   public readonly userId: UUID;
-  public readonly firstName: string;
-  public readonly lastName: string;
+  public readonly firstName?: string;
+  public readonly lastName?: string;
   public readonly imageUrl?: string;
   public readonly createdAt?: Date;
   public readonly updatedAt?: Date;
@@ -32,8 +32,8 @@ export class ProfileEntity {
   static create(
     id: UUID,
     userId: UUID,
-    firstName: string,
-    lastName: string,
+    firstName?: string,
+    lastName?: string,
     imageUrl?: string,
   ): ProfileEntity {
     return new ProfileEntity(id, userId, firstName, lastName, imageUrl);

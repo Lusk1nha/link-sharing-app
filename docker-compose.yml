@@ -86,26 +86,26 @@ services:
     networks:
       - shared-network
 
-  # api:
-  #   container_name: api-app
-  #   build:
-  #     context: .
-  #     dockerfile: apps/api/Dockerfile
-  #   env_file:
-  #     - ./apps/api/.env
-  #   environment:
-  #     NODE_ENV: production     
-  #     REDIS_HOST: redis
+  api:
+    container_name: api-app
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    env_file:
+      - ./apps/api/.env
+    environment:
+      NODE_ENV: production     
+      REDIS_HOST: redis
 
-  #   ports:
-  #     - "${APP_PORT:-8000}:8000"
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #     postgres:
-  #       condition: service_healthy
-  #   networks:
-  #     - shared-network
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - shared-network
 
   # web:
   #   container_name: web-app

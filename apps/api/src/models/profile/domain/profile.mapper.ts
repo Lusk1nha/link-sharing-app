@@ -10,8 +10,8 @@ export class ProfileMapper extends DomainBaseMapper<ProfileEntity, RawProfile> {
     return new ProfileEntity(
       UUIDFactory.from(raw.id),
       UUIDFactory.from(raw.userId),
-      raw.firstName,
-      raw.lastName,
+      raw.firstName ? raw.firstName : undefined,
+      raw.lastName ? raw.lastName : undefined,
       raw.imageUrl ? raw.imageUrl : undefined,
       raw.createdAt ? new Date(raw.createdAt) : undefined,
       raw.updatedAt ? new Date(raw.updatedAt) : undefined,
@@ -22,11 +22,11 @@ export class ProfileMapper extends DomainBaseMapper<ProfileEntity, RawProfile> {
     return {
       id: entity.id.value,
       userId: entity.userId.value,
-      firstName: entity.firstName,
-      lastName: entity.lastName,
-      imageUrl: entity.imageUrl || null,
-      createdAt: entity.createdAt || new Date(),
-      updatedAt: entity.updatedAt || new Date(),
+      firstName: entity.firstName ?? null,
+      lastName: entity.lastName ?? null,
+      imageUrl: entity.imageUrl ?? null,
+      createdAt: entity.createdAt ?? new Date(),
+      updatedAt: entity.updatedAt ?? new Date(),
     };
   }
 

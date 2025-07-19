@@ -6,6 +6,7 @@ import { generateSingleMockAdmin } from '../__mock__/admin.mock';
 import { UUIDFactory } from 'src/common/entities/uuid/uuid.factory';
 import { AdminEntity } from '../domain/admin.entity';
 import { AdminNotFoundException } from '../admin.errors';
+import { AdminRepository } from '../admin.repository';
 
 describe(AdminService.name, () => {
   let service: AdminService;
@@ -15,6 +16,7 @@ describe(AdminService.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AdminService,
+        AdminRepository,
         {
           provide: PrismaService,
           useValue: {

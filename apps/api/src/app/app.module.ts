@@ -68,7 +68,7 @@ const validationSchema = Joi.object({
         },
 
         defaults: {
-          from: process.env.SMTP_FROM || 'noreply@example.com',
+          from: process.env.SMTP_FROM ?? 'noreply@example.com',
         },
 
         template: {

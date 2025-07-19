@@ -14,6 +14,15 @@ import {
   UserAlreadyExistsException,
   UserNotFoundException,
 } from '../users.errors';
+import { UsersRepository } from '../users.repository';
+
+import { RabbitMQService } from 'src/common/rabbitmq/rabbitmq.service';
+import { rabbitMQConfig } from 'src/common/rabbitmq/rabbitmq.config';
+import { RABBITMQ_CONSTANTS } from 'src/common/rabbitmq/rabbitmq.constants';
+import {
+  RABBITMQ_CLIENT_CONFIG,
+  RABBITMQ_MANAGER,
+} from 'src/common/rabbitmq/domain/rabbitmq.injects';
 
 describe(UsersService.name, () => {
   let service: UsersService;
@@ -23,6 +32,20 @@ describe(UsersService.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
+        UsersRepository,
+
+        {
+          provide: RABBITMQ_MANAGER,
+          useClass: RabbitMQService,
+        },
+        {
+          provide: RABBITMQ_CLIENT_CONFIG,
+          useValue: rabbitMQConfig({
+            queue: RABBITMQ_CONSTANTS.USERS_QUEUE,
+            queueOptions: { durable: false },
+          }),
+        },
+
         {
           provide: PrismaService,
           useValue: {

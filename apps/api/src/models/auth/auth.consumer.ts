@@ -1,8 +1,9 @@
 import { Controller, Logger } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
 import { User } from '@prisma/client';
-import { EmailAddressFactory } from 'src/common/entities/email-address/email-address.factory';
 import { MailService } from 'src/common/mail/mail.service';
+import { UserMapper } from '../users/domain/user.mapper';
+import { AUTH_TEMPLATES } from './auth.templates';
 
 @Controller()
 export class AuthConsumer {
@@ -11,23 +12,27 @@ export class AuthConsumer {
   constructor(private readonly mailService: MailService) {}
 
   @EventPattern('auth.user.registered')
-  async handleUserRegisteredEvent(data: User) {
+  async handleUserRegisteredEvent(user: User) {
+    const userVo = UserMapper.toDomain(user);
+
     await this.mailService.send({
-      template: 'auth-welcome',
-      to: [EmailAddressFactory.from('lucaspedro517@gmail.com')],
+      template: AUTH_TEMPLATES.AUTH_WELCOME,
+      to: [userVo.email],
       context: {
-        user: data,
+        user: userVo,
       },
     });
   }
 
   @EventPattern('auth.user.login')
-  async handleUserLoginEvent(data: User) {
+  async handleUserLoginEvent(user: User) {
+    const userVo = UserMapper.toDomain(user);
+
     await this.mailService.send({
-      template: 'auth-login',
-      to: [EmailAddressFactory.from('lucaspedro517@gmail.com')],
+      template: AUTH_TEMPLATES.AUTH_LOGIN,
+      to: [userVo.email],
       context: {
-        user: data,
+        user: userVo,
         lastLogin: new Date().toLocaleString(),
       },
     });
