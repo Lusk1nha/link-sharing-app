@@ -16,9 +16,14 @@ describe(ProfileController.name, () => {
   let controller: ProfileController;
   let profileService: ProfileService;
 
+  const OLD_ENV = process.env;
+
   beforeAll(() => {
-    process.env.HMAC_SECRET = 'ci-secret'; // ← define ANTES
-    process.env.HMAC_ALGORITHM = 'sha256';
+    process.env = {
+      ...OLD_ENV,
+      HMAC_SECRET: 'ci-secret',
+      HMAC_ALGORITHM: 'sha256',
+    };
   });
 
   beforeEach(async () => {
@@ -47,6 +52,10 @@ describe(ProfileController.name, () => {
 
     controller = module.get<ProfileController>(ProfileController);
     profileService = module.get<ProfileService>(ProfileService);
+  });
+
+  afterAll(() => {
+    process.env = OLD_ENV;
   });
 
   it('should be defined', () => {

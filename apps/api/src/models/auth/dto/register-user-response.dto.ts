@@ -1,17 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UUID } from 'src/common/entities/uuid/uuid.entity';
 import { UserEntity } from 'src/models/users/domain/user.entity';
 
 export class RegisterUserResponseDto {
   constructor(user: UserEntity) {
-    this.userId = user.id;
+    this.userId = user.id.value;
   }
 
   @ApiProperty({
     description: 'Unique identifier of the registered user',
-    type: UUID,
+    type: String,
   })
-  userId: UUID;
+  userId: string;
 
   @ApiProperty({
     example: 'User registered successfully',

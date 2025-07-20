@@ -30,15 +30,18 @@ import {
 } from '../../users/users.errors';
 import { CredentialNotFoundException } from '../../credentials/credentials.errors';
 import { RevalidateSessionDto } from '../dto/revalidate-session.dto';
-import { UserJwtPayload } from 'src/common/auth/__types__/auth.types';
+
 import { InvalidSessionException } from '../../sessions/sessions.errors';
 import { LogoutUserDto } from '../dto/logout-user.dto';
 import { AuthProviderService } from 'src/models/auth-providers/auth-providers.service';
 import { AuthProviderEntity } from 'src/models/auth-providers/domain/auth-providers.entity';
 import { AuthSignInType } from '@prisma/client';
+import { AuthValidatorService } from '../auth.validator';
+import { RABBITMQ_MANAGER } from 'src/common/rabbitmq/domain/rabbitmq.injects';
 
 describe(AuthService.name, () => {
   let authService: AuthService;
+  let authValidatorService: AuthValidatorService;
   let usersService: UsersService;
   let credentialsService: CredentialsService;
   let authProviderService: AuthProviderService;
@@ -50,6 +53,26 @@ describe(AuthService.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
+
+        {
+          provide: RABBITMQ_MANAGER,
+          useValue: {
+            publish: jest.fn(),
+          },
+        },
+        {
+          provide: AuthProviderService,
+          useValue: {
+            createAuthProvider: jest.fn(),
+          },
+        },
+        {
+          provide: AuthValidatorService,
+          useValue: {
+            validateUserCredentials: jest.fn(),
+            validateUserOwnership: jest.fn(),
+          },
+        },
         {
           provide: PrismaService,
           useValue: {
@@ -101,6 +124,8 @@ describe(AuthService.name, () => {
     }).compile();
 
     authService = module.get<AuthService>(AuthService);
+    authValidatorService =
+      module.get<AuthValidatorService>(AuthValidatorService);
     usersService = module.get<UsersService>(UsersService);
     credentialsService = module.get<CredentialsService>(CredentialsService);
     authProviderService = module.get<AuthProviderService>(AuthProviderService);
@@ -156,15 +181,21 @@ describe(AuthService.name, () => {
 
       jest
         .spyOn(usersService, 'createUser')
-        .mockImplementationOnce(async () => await mockUserEntity);
+        .mockImplementationOnce(
+          async () => await Promise.resolve(mockUserEntity),
+        );
 
       jest
         .spyOn(credentialsService, 'createCredential')
-        .mockImplementationOnce(async () => await mockCredentialEntity);
+        .mockImplementationOnce(
+          async () => await Promise.resolve(mockCredentialEntity),
+        );
 
       jest
         .spyOn(authProviderService, 'createAuthProvider')
-        .mockImplementationOnce(async () => await mockAuthProviderEntity);
+        .mockImplementationOnce(
+          async () => await Promise.resolve(mockAuthProviderEntity),
+        );
 
       const result = await authService.register(dto);
 
@@ -243,21 +274,18 @@ describe(AuthService.name, () => {
         .mockResolvedValueOnce(true);
 
       jest
+        .spyOn(authValidatorService, 'validateUserCredentials')
+        .mockResolvedValueOnce(user);
+
+      jest
         .spyOn(sessionsService, 'createSession')
         .mockResolvedValueOnce(sessionTokens);
 
       const result = await authService.login(dto);
 
-      expect(usersService.findByEmailOrThrow).toHaveBeenCalledWith(
+      expect(authValidatorService.validateUserCredentials).toHaveBeenCalledWith(
         EmailAddressFactory.from(dto.email),
-      );
-
-      expect(credentialsService.findByUserIdOrThrow).toHaveBeenCalledWith(
-        user.id,
-      );
-      expect(passwordService.comparePassword).toHaveBeenCalledWith(
         PasswordFactory.from(dto.password),
-        credential.passwordHash,
       );
 
       expect(sessionsService.createSession).toHaveBeenCalledWith(user);
@@ -274,29 +302,9 @@ describe(AuthService.name, () => {
         password: faker.internet.password(),
       };
 
-      const user = UserMapper.toDomain(
-        generateSingleMockUser({
-          email: dto.email,
-        }),
-      );
-
-      const credential = CredentialMapper.toDomain(
-        generateSingleMockCredential({
-          userId: user.id.value,
-        }),
-      );
-
       jest
-        .spyOn(usersService, 'findByEmailOrThrow')
-        .mockResolvedValueOnce(user);
-
-      jest
-        .spyOn(credentialsService, 'findByUserIdOrThrow')
-        .mockResolvedValueOnce(credential);
-
-      jest
-        .spyOn(passwordService, 'comparePassword')
-        .mockResolvedValueOnce(false);
+        .spyOn(authValidatorService, 'validateUserCredentials')
+        .mockRejectedValueOnce(new LoginCredentialsInvalidException());
 
       await expect(authService.login(dto)).rejects.toThrow(
         new LoginCredentialsInvalidException(),
@@ -313,8 +321,17 @@ describe(AuthService.name, () => {
         .spyOn(usersService, 'findByEmailOrThrow')
         .mockRejectedValueOnce(new UserNotFoundException());
 
+      jest
+        .spyOn(authValidatorService, 'validateUserCredentials')
+        .mockRejectedValueOnce(new UserNotFoundException());
+
       await expect(authService.login(dto)).rejects.toThrow(
         new UserNotFoundException(),
+      );
+
+      expect(authValidatorService.validateUserCredentials).toHaveBeenCalledWith(
+        EmailAddressFactory.from(dto.email),
+        PasswordFactory.from(dto.password),
       );
     });
 
@@ -324,22 +341,21 @@ describe(AuthService.name, () => {
         password: faker.internet.password(),
       };
 
-      const user = UserMapper.toDomain(
-        generateSingleMockUser({
-          email: dto.email,
-        }),
-      );
-
-      jest
-        .spyOn(usersService, 'findByEmailOrThrow')
-        .mockResolvedValueOnce(user);
-
       jest
         .spyOn(credentialsService, 'findByUserIdOrThrow')
         .mockRejectedValueOnce(new CredentialNotFoundException());
 
+      jest
+        .spyOn(authValidatorService, 'validateUserCredentials')
+        .mockRejectedValueOnce(new CredentialNotFoundException());
+
       await expect(authService.login(dto)).rejects.toThrow(
         new CredentialNotFoundException(),
+      );
+
+      expect(authValidatorService.validateUserCredentials).toHaveBeenCalledWith(
+        EmailAddressFactory.from(dto.email),
+        PasswordFactory.from(dto.password),
       );
     });
   });
@@ -355,13 +371,6 @@ describe(AuthService.name, () => {
       };
 
       const user = UserMapper.toDomain(generateSingleMockUser());
-      const userJwtPayload = {
-        sub: user.id.value,
-        email: user.email.value,
-        aud: 'api',
-        iss: 'auth',
-        iat: Math.floor(Date.now() / 1000),
-      } as UserJwtPayload;
 
       const sessionTokens: SessionTokens = {
         accessToken: TokenMapper.toDomain(generateSingleMockToken()),
@@ -369,10 +378,8 @@ describe(AuthService.name, () => {
       };
 
       jest
-        .spyOn(sessionsService, 'validateRefreshToken')
-        .mockResolvedValueOnce(userJwtPayload);
-
-      jest.spyOn(usersService, 'findByIdOrThrow').mockResolvedValueOnce(user);
+        .spyOn(authValidatorService, 'validateUserOwnership')
+        .mockResolvedValueOnce(user);
 
       jest
         .spyOn(sessionsService, 'revalidateByRefreshToken')
@@ -380,16 +387,15 @@ describe(AuthService.name, () => {
 
       const result = await authService.revalidate(dto);
 
-      expect(sessionsService.validateRefreshToken).toHaveBeenCalledWith(
+      expect(authValidatorService.validateUserOwnership).toHaveBeenCalledWith(
         dto.refreshToken,
       );
-      expect(usersService.findByIdOrThrow).toHaveBeenCalledWith(
-        UUIDFactory.from(userJwtPayload.sub),
-      );
+
       expect(sessionsService.revalidateByRefreshToken).toHaveBeenCalledWith(
         user,
         dto.refreshToken,
       );
+
       expect(result).toEqual({
         accessToken: sessionTokens.accessToken,
         refreshToken: sessionTokens.refreshToken,
@@ -415,6 +421,10 @@ describe(AuthService.name, () => {
         .spyOn(sessionsService, 'validateRefreshToken')
         .mockRejectedValueOnce(new InvalidSessionException());
 
+      jest
+        .spyOn(authValidatorService, 'validateUserOwnership')
+        .mockRejectedValueOnce(new InvalidSessionException());
+
       await expect(authService.revalidate(dto)).rejects.toThrow(
         new InvalidSessionException(),
       );
@@ -432,19 +442,10 @@ describe(AuthService.name, () => {
       };
 
       const user = UserMapper.toDomain(generateSingleMockUser());
-      const userJwtPayload = {
-        sub: user.id.value,
-        email: user.email.value,
-        aud: 'api',
-        iss: 'auth',
-        iat: Math.floor(Date.now() / 1000),
-      } as UserJwtPayload;
 
       jest
-        .spyOn(sessionsService, 'validateRefreshToken')
-        .mockResolvedValueOnce(userJwtPayload);
-
-      jest.spyOn(usersService, 'findByIdOrThrow').mockResolvedValueOnce(user);
+        .spyOn(authValidatorService, 'validateUserOwnership')
+        .mockResolvedValueOnce(user);
 
       jest
         .spyOn(sessionsService, 'revokeByRefreshToken')
@@ -452,12 +453,8 @@ describe(AuthService.name, () => {
 
       await authService.logout(dto);
 
-      expect(sessionsService.validateRefreshToken).toHaveBeenCalledWith(
+      expect(authValidatorService.validateUserOwnership).toHaveBeenCalledWith(
         dto.refreshToken,
-      );
-
-      expect(usersService.findByIdOrThrow).toHaveBeenCalledWith(
-        UUIDFactory.from(userJwtPayload.sub),
       );
 
       expect(sessionsService.revokeByRefreshToken).toHaveBeenCalledWith(
@@ -483,6 +480,10 @@ describe(AuthService.name, () => {
 
       jest
         .spyOn(sessionsService, 'validateRefreshToken')
+        .mockRejectedValueOnce(new InvalidSessionException());
+
+      jest
+        .spyOn(authValidatorService, 'validateUserOwnership')
         .mockRejectedValueOnce(new InvalidSessionException());
 
       await expect(authService.logout(dto)).rejects.toThrow(

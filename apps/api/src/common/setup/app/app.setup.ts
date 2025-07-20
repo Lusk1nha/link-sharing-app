@@ -1,4 +1,5 @@
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
+
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
@@ -10,27 +11,40 @@ export function setupApp(
   app: INestApplication,
   logger: Logger,
   config?: IApplicationConfig,
-): void {
+) {
   logger.log('[setupApp] Initializing application setup...');
 
+  setupRoutesConfig(app, config);
+  setupSecurity(app);
+
+  app.enableShutdownHooks();
+
+  logger.log('[setupApp] Application setup completed successfully.');
+
+  return app;
+}
+
+function setupRoutesConfig(
+  app: INestApplication,
+  config?: IApplicationConfig,
+): void {
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
       forbidNonWhitelisted: true,
       whitelist: true,
     }),
-  ); // Use global validation pipe for request validation
+  );
 
-  app.setGlobalPrefix('api/v1'); // Set global prefix for all routes
+  app.setGlobalPrefix('api/v1');
+
   app.enableCors({
     origin: config?.origins || '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  }); // Enable CORS with default or provided origins
+  });
+}
 
-  app.use(helmet()); // Use Helmet for security headers
-  app.use(cookieParser()); // Parse cookies in requests
-
-  app.enableShutdownHooks(); // Enable shutdown hooks for graceful shutdown
-
-  logger.log('[setupApp] Application setup completed successfully.');
+function setupSecurity(app: INestApplication): void {
+  app.use(helmet());
+  app.use(cookieParser());
 }

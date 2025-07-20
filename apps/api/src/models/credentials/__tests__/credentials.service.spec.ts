@@ -8,6 +8,7 @@ import { generateSingleMockCredential } from '../__mock__/credentials.mock';
 import { CredentialEntity } from '../domain/credential.entity';
 import { CredentialMapper } from '../domain/credential.mapper';
 import { CredentialAlreadyExistsForUserException } from '../credentials.errors';
+import { CredentialsRepository } from '../credentials.repository';
 
 describe(CredentialsService.name, () => {
   let service: CredentialsService;
@@ -17,6 +18,7 @@ describe(CredentialsService.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CredentialsService,
+        CredentialsRepository,
         {
           provide: PrismaService,
           useValue: {

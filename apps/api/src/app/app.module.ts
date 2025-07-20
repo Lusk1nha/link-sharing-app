@@ -30,6 +30,9 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
 import { ProfileModule } from 'src/models/profile/profile.module';
 
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+
 const validationSchema = Joi.object({
   APP_PORT: Joi.number().integer().positive().default(3000),
   DATABASE_URL: Joi.string().required(),
@@ -53,8 +56,33 @@ const validationSchema = Joi.object({
       host: process.env.REDIS_HOST,
       port: process.env.REDIS_PORT,
     }),
+    MailerModule.forRootAsync({
+      useFactory: () => ({
+        transport: {
+          host: process.env.SMTP_HOST,
+          port: +process.env.SMTP_PORT!,
+          secure: false,
+          tls: {
+            rejectUnauthorized: false,
+          },
+        },
+
+        defaults: {
+          from: process.env.SMTP_FROM_ADDRESS,
+        },
+
+        template: {
+          dir: process.cwd() + '/src/templates',
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: false,
+          },
+        },
+      }),
+    }),
 
     RedisCacheModule,
+
     HealthModule,
     MemoryUsageModule,
     UsersModule,

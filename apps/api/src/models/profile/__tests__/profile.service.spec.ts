@@ -1,6 +1,8 @@
 import { PrismaService } from 'src/common/database/database.service';
 import { ProfileService } from '../profile.service';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ProfileRepository } from '../profile.repository';
+import { UPLOADER_STRATEGY } from 'src/common/file-uploader/domain/file-uploader.port';
 
 describe(ProfileService.name, () => {
   let profileService: ProfileService;
@@ -10,6 +12,13 @@ describe(ProfileService.name, () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProfileService,
+        ProfileRepository,
+        {
+          provide: UPLOADER_STRATEGY,
+          useValue: {
+            upload: jest.fn(),
+          },
+        },
         {
           provide: PrismaService,
           useValue: {

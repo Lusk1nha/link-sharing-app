@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthProviderService } from '../auth-providers.service';
 import { PrismaService } from 'src/common/database/database.service';
+import { AuthProvidersRepository } from '../auth-providers.repository';
 
 describe(AuthProviderService, () => {
   let service: AuthProviderService;
@@ -9,6 +10,7 @@ describe(AuthProviderService, () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthProviderService,
+        AuthProvidersRepository,
         {
           provide: PrismaService,
           useValue: {

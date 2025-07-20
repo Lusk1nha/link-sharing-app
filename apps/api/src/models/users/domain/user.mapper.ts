@@ -22,6 +22,9 @@ export class UserMapper extends DomainBaseMapper<UserEntity, RawUser> {
     return {
       id: entity.id.value,
       email: entity.email.value,
+      isActive: entity.isActive,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
     };
   }
 

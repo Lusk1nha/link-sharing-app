@@ -14,8 +14,8 @@ describe(ProfileEntity.name, () => {
       const profile = new ProfileEntity(
         UUIDFactory.from(rawProfile.id),
         UUIDFactory.from(rawProfile.userId),
-        rawProfile.firstName,
-        rawProfile.lastName,
+        rawProfile.firstName ? rawProfile.firstName : undefined,
+        rawProfile.lastName ? rawProfile.lastName : undefined,
         rawProfile.imageUrl ? rawProfile.imageUrl : undefined,
         rawProfile.createdAt,
         rawProfile.updatedAt,

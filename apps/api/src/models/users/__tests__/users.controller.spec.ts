@@ -18,6 +18,14 @@ import { UpdateUserResponseDto } from '../dto/update-user-response.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { ValidationPipe } from '@nestjs/common';
 
+import { RabbitMQService } from 'src/common/rabbitmq/rabbitmq.service';
+import { rabbitMQConfig } from 'src/common/rabbitmq/rabbitmq.config';
+import { RABBITMQ_CONSTANTS } from 'src/common/rabbitmq/rabbitmq.constants';
+import {
+  RABBITMQ_CLIENT_CONFIG,
+  RABBITMQ_MANAGER,
+} from 'src/common/rabbitmq/domain/rabbitmq.injects';
+
 describe(UsersController.name, () => {
   let controller: UsersController;
   let usersService: UsersService;
@@ -49,6 +57,17 @@ describe(UsersController.name, () => {
             findByIdOrThrow: jest.fn(),
             updateUser: jest.fn(),
           },
+        },
+        {
+          provide: RABBITMQ_MANAGER,
+          useClass: RabbitMQService,
+        },
+        {
+          provide: RABBITMQ_CLIENT_CONFIG,
+          useValue: rabbitMQConfig({
+            queue: RABBITMQ_CONSTANTS.USERS_QUEUE,
+            queueOptions: { durable: false },
+          }),
         },
       ],
     }).compile();

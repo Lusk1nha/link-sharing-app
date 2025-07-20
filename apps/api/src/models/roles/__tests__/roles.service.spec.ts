@@ -16,6 +16,16 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { RedisCacheService } from 'src/models/redis-cache/redis-cache.service';
 
+import { UsersRepository } from 'src/models/users/users.repository';
+import { AdminRepository } from 'src/models/admin/admin.repository';
+import {
+  RABBITMQ_CLIENT_CONFIG,
+  RABBITMQ_MANAGER,
+} from 'src/common/rabbitmq/domain/rabbitmq.injects';
+import { RabbitMQService } from 'src/common/rabbitmq/rabbitmq.service';
+import { rabbitMQConfig } from 'src/common/rabbitmq/rabbitmq.config';
+import { RABBITMQ_CONSTANTS } from 'src/common/rabbitmq/rabbitmq.constants';
+
 describe(RolesService.name, () => {
   let rolesService: RolesService;
   let usersService: UsersService;
@@ -28,8 +38,23 @@ describe(RolesService.name, () => {
       providers: [
         RolesService,
         AdminService,
+        AdminRepository,
         UsersService,
+        UsersRepository,
         PrismaService,
+
+        {
+          provide: RABBITMQ_MANAGER,
+          useClass: RabbitMQService,
+        },
+        {
+          provide: RABBITMQ_CLIENT_CONFIG,
+          useValue: rabbitMQConfig({
+            queue: RABBITMQ_CONSTANTS.USERS_QUEUE,
+            queueOptions: { durable: false },
+          }),
+        },
+
         {
           provide: RedisCacheService,
           useValue: {

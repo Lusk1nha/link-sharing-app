@@ -1,5 +1,20 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  FileTypeValidator,
+  Get,
+  MaxFileSizeValidator,
+  ParseFilePipe,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtStoredPayload } from 'src/common/auth/__types__/auth.types';
 import {
   AllowAuthenticated,
@@ -10,6 +25,7 @@ import { ProfileService } from './profile.service';
 import { GetProfileResponseDto } from './dto/get-profile-response.dto';
 import { UUIDParam } from 'src/common/entities/uuid/uuid.decorator';
 import { UUID } from 'src/common/entities/uuid/uuid.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('profile')
 @ApiTags('Profile')
@@ -48,5 +64,39 @@ export class ProfileController {
     }
 
     return null;
+  }
+
+  @Post('upload-avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    required: true,
+    type: 'multipart/form-data',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  async uploadAvatar(
+    @GetAuthUser() currentUser: JwtStoredPayload,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: 'image/(jpeg|png)' }),
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 5 }), // 5MB
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<GetProfileResponseDto> {
+    const userId = UUIDFactory.from(currentUser.sub);
+    const profile = await this.profileService.updateAvatar(userId, file);
+
+    return new GetProfileResponseDto(profile);
   }
 }

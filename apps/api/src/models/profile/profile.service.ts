@@ -1,49 +1,67 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, Profile } from '@prisma/client';
-
-import { PrismaBaseService } from 'src/common/database/database-base.service';
-import { PrismaService } from 'src/common/database/database.service';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { UUID } from 'src/common/entities/uuid/uuid.entity';
 import { ProfileEntity } from './domain/profile.entity';
-import { ProfileMapper } from './domain/profile.mapper';
+import { ProfileRepository } from './profile.repository';
 import { ProfileNotFoundException } from './profile.errors';
 
-@Injectable()
-export class ProfileService extends PrismaBaseService<Profile> {
-  protected readonly modelName = 'profile';
+import {
+  FileUploaderPort,
+  UPLOADER_STRATEGY,
+} from 'src/common/file-uploader/domain/file-uploader.port';
+import { PutObjectCommandInput } from '@aws-sdk/client-s3';
 
+@Injectable()
+export class ProfileService {
   private readonly logger = new Logger(ProfileService.name);
 
-  constructor(protected readonly prisma: PrismaService) {
-    super(prisma);
-  }
+  constructor(
+    private readonly profileRepo: ProfileRepository,
 
-  private async findUnique(
-    where: Prisma.ProfileWhereUniqueInput,
-  ): Promise<ProfileEntity | null> {
-    const record = await this.client().profile.findUnique({ where });
-    return record ? ProfileMapper.toDomain(record) : null;
-  }
+    @Inject(UPLOADER_STRATEGY)
+    private readonly uploader: FileUploaderPort,
+  ) {}
 
   async findUserById(userId: UUID): Promise<ProfileEntity | null> {
-    const record = await this.findUnique({ userId: userId.value });
-
-    if (record) {
-      this.logger.debug(
-        `[${this.modelName}] Profile found for userId=${userId.value}`,
-      );
+    const profile = await this.profileRepo.findByUserId(userId);
+    if (profile) {
+      this.logDebug(`Profile found for userId=${userId.value}`);
     }
-
-    return record;
+    return profile;
   }
 
   async findUserByIdOrThrow(userId: UUID): Promise<ProfileEntity> {
     const profile = await this.findUserById(userId);
-
-    if (!profile) {
-      throw new ProfileNotFoundException();
-    }
-
+    if (!profile) throw new ProfileNotFoundException();
     return profile;
+  }
+
+  async createProfileForUser(userId: UUID): Promise<ProfileEntity> {
+    const profile = await this.profileRepo.create(userId);
+    this.logDebug(`Profile created for userId=${userId.value}`);
+    return profile;
+  }
+
+  async updateAvatar(
+    userId: UUID,
+    file: Express.Multer.File,
+  ): Promise<ProfileEntity> {
+    const imageUrl = await this.uploader.upload<PutObjectCommandInput>(
+      userId.value,
+      file.buffer,
+      file.mimetype,
+      { ACL: 'public-read' },
+    );
+
+    const updatedProfile = await this.profileRepo.updateAvatar(
+      userId,
+      imageUrl,
+    );
+
+    this.logDebug(`Avatar updated for userId=${userId.value}`);
+    return updatedProfile;
+  }
+
+  private logDebug(message: string) {
+    this.logger.debug(`[Profile] ${message}`);
   }
 }
