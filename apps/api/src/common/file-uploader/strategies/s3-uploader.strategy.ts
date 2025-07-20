@@ -5,17 +5,24 @@ import {
   PutObjectCommandInput,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { FileUploaderPort } from '../domain/file-uploader.port';
 
 import { Readable } from 'stream';
 
 @Injectable()
-export class S3UploaderStrategy implements FileUploaderPort {
+export class S3UploaderStrategy
+  implements FileUploaderPort, OnModuleInit, OnModuleDestroy
+{
   private readonly logger = new Logger(S3UploaderStrategy.name);
 
   private readonly client: S3Client;
-  private readonly bucket: string;
+  readonly bucketName: string;
 
   constructor(
     bucket: string,
@@ -23,7 +30,7 @@ export class S3UploaderStrategy implements FileUploaderPort {
     accessKeyId: string,
     secretAccessKey: string,
   ) {
-    this.bucket = bucket;
+    this.bucketName = bucket;
 
     this.client = new S3Client({
       region,
@@ -32,6 +39,17 @@ export class S3UploaderStrategy implements FileUploaderPort {
         secretAccessKey,
       },
     });
+  }
+
+  onModuleInit() {
+    this.logger.log(
+      `S3UploaderStrategy initialized for bucket: ${this.bucketName}`,
+    );
+  }
+
+  onModuleDestroy() {
+    this.logger.log(`S3UploaderStrategy is being destroyed`);
+    this.client.destroy();
   }
 
   async upload<T extends PutObjectCommandInput>(
@@ -43,7 +61,7 @@ export class S3UploaderStrategy implements FileUploaderPort {
     const region = await this.client.config.region();
 
     const command = new PutObjectCommand({
-      Bucket: this.bucket,
+      Bucket: this.bucketName,
       Key: key,
       Body: body,
       ContentType: contentType,
@@ -53,10 +71,10 @@ export class S3UploaderStrategy implements FileUploaderPort {
     await this.client.send(command);
 
     this.logger.log(
-      `File uploaded: ${key} to bucket ${this.bucket} in region ${region}`,
+      `File uploaded: ${key} to bucket ${this.bucketName} in region ${region}`,
     );
 
-    return `https://${this.bucket}.s3.${region}.amazonaws.com/${key}`;
+    return `https://${this.bucketName}.s3.${region}.amazonaws.com/${key}`;
   }
 
   async delete<T extends DeleteObjectCommandInput>(
@@ -64,13 +82,13 @@ export class S3UploaderStrategy implements FileUploaderPort {
     options?: Partial<T>,
   ): Promise<void> {
     const command = new DeleteObjectCommand({
-      Bucket: this.bucket,
+      Bucket: this.bucketName,
       Key: key,
       ...options,
     });
 
     await this.client.send(command);
 
-    this.logger.log(`File deleted: ${key} from bucket ${this.bucket}`);
+    this.logger.log(`File deleted: ${key} from bucket ${this.bucketName}`);
   }
 }

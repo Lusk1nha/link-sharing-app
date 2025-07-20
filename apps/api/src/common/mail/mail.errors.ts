@@ -1,6 +1,20 @@
 import { HttpStatus } from '@nestjs/common';
 import { BaseHttpException } from '../exceptions/base-expections.common';
 
+export class MailEnvironmentVariableException extends BaseHttpException {
+  constructor(variableName: string) {
+    super(
+      {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: `Mail environment variable error: ${variableName} is not set`,
+        error: 'MAIL_ENVIRONMENT_ERROR',
+      },
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      'MAIL_ENVIRONMENT_ERROR',
+    );
+  }
+}
+
 export class SendMailException extends BaseHttpException {
   constructor(message: string) {
     super(
