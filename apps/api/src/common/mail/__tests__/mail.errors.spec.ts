@@ -1,5 +1,8 @@
-import { MailEnvironmentVariableException, SendMailException, TemplateNotFoundException } from '../mail.errors';
-
+import {
+  MailEnvironmentVariableException,
+  SendMailException,
+  TemplateNotFoundException,
+} from '../mail.errors';
 
 describe(MailEnvironmentVariableException.name, () => {
   it('should be defined', () => {
@@ -7,9 +10,9 @@ describe(MailEnvironmentVariableException.name, () => {
   });
 
   it('should be instantiable', () => {
-    expect(new MailEnvironmentVariableException('SMTP_FROM_ADDRESS')).toBeInstanceOf(
-      MailEnvironmentVariableException,
-    );
+    expect(
+      new MailEnvironmentVariableException('SMTP_FROM_ADDRESS'),
+    ).toBeInstanceOf(MailEnvironmentVariableException);
   });
 
   it('should have a message property', () => {
@@ -17,7 +20,6 @@ describe(MailEnvironmentVariableException.name, () => {
     expect(error.getMessage()).toContain('SMTP_FROM_ADDRESS');
   });
 });
-
 
 describe(SendMailException.name, () => {
   it('should be defined', () => {
