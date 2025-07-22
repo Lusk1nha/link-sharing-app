@@ -13,10 +13,7 @@ export default function RootTemplate(props: Readonly<RootTemplateProps>) {
   const { children } = props;
 
   return (
-    <div
-      id="root-template-container"
-      className={`bg-auth-background ${instrumentSans.className}`}
-    >
+    <div id="root-template-container" className={`${instrumentSans.className}`}>
       {children}
     </div>
   );

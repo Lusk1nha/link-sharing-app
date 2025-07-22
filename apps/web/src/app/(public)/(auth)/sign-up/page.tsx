@@ -1,18 +1,19 @@
+import { RegisterUserForm } from '@/components/forms/register-user-form';
 import { Card, CardContent, CardHeader } from '@link-sharing-app/ui/card';
+
+import { Text } from '@link-sharing-app/ui/text';
+import { Title } from '@link-sharing-app/ui/title';
 
 export default function SignUpPage() {
   return (
     <Card className="gap-y-10">
-      <CardHeader>
-        <h1 className="sm:system-preset-2 md:system-preset-1">
-          Create account
-        </h1>
-        <p className="system-preset-3-regular">
-          Let’s get you started sharing your links!
-        </p>
+      <CardHeader className='px-0 sm:px-10'>
+        <Title>Create account</Title>
+        <Text>Let’s get you started sharing your links!</Text>
       </CardHeader>
-      <CardContent>
-        <p>Please fill in the form to create a new account.</p>
+
+      <CardContent className="px-0 sm:px-10">
+        <RegisterUserForm />
       </CardContent>
     </Card>
   );

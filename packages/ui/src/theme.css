@@ -1,14 +1,51 @@
-@import "@link-sharing-app/design-system/theme.css";
+@import '@link-sharing-app/design-system/theme.css';
 
 @theme {
   --color-card-background: var(--theme-card-background);
+
+  --color-anchor-text: var(--theme-anchor-text);
+
+  --color-title-default-text: var(--theme-title-default-text);
+
+  --color-default-text: var(--theme-text-default-text);
+
+  --color-label-default-text: var(--theme-label-default-text);
+  --color-label-danger-text: var(--theme-label-danger-text);
+
+  --color-input-border: var(--theme-input-border);
+  --color-input-border-error: var(--theme-input-border-error);
+  --color-input-icon: var(--theme-input-icon);
+  --color-input-text: var(--theme-input-text);
+  --color-input-description-text: var(--theme-input-description-text);
+  --color-input-error-text: var(--theme-input-error-text);
+  --color-input-placeholder: var(--theme-input-placeholder);
+
+  --color-button-default: var(--theme-button-default);
+  --color-button-default-text: var(--color-system-neutral-0);
 }
 
 @layer base {
   :root {
     --theme-card-background: var(--color-system-neutral-0);
+    --theme-anchor-text: var(--color-system-purple-600);
+
+    --theme-title-default-text: var(--color-system-neutral-900);
+    --theme-text-default-text: var(--color-system-neutral-500);
+
+    --theme-label-default-text: var(--color-system-neutral-900);
+    --theme-label-danger-text: var(--color-system-red-500);
+
+    --theme-input-border: var(--color-system-neutral-200);
+    --theme-input-border-error: var(--color-system-red-500);
+    --theme-input-icon: var(--color-system-neutral-500);
+    --theme-input-text: var(--color-system-neutral-900);
+    --theme-input-description-text: var(--color-system-neutral-500);
+    --theme-input-error-text: var(--color-system-red-500);
+    --theme-input-placeholder: var(--color-system-neutral-900);
+
+    --theme-button-default: var(--color-system-purple-600);
   }
 
-  [data-theme="dark"] {
+  [data-theme='dark'] {
   }
 }

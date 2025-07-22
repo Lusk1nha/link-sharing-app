@@ -13,7 +13,13 @@
   "exports": {
     "./styles.css": "./dist/styles.css",
     "./theme.css": "./src/theme.css",
-    "./card": "./src/card.tsx"
+    "./card": "./src/card.tsx",
+    "./title": "./src/title.tsx",
+    "./text": "./src/text.tsx",
+    "./label": "./src/label.tsx",
+    "./input": "./src/input.tsx",
+    "./form": "./src/form.tsx",
+    "./button": "./src/button.tsx"
   },
   "scripts": {
     "build": "tailwindcss -i ./src/styles.css -o ./dist/styles.css",

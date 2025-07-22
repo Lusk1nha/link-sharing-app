@@ -3,13 +3,18 @@
 
 @theme {
   --color-auth-background: var(--theme-auth-background);
+  --color-auth-background-mobile: var(--theme-auth-background-mobile);
+
   --color-logo-name: var(--theme-logo-name);
   --color-logo-icon: var(--theme-logo-icon);
+
+  --breakpoint-very-small: 30rem;
 }
 
 @layer base {
   :root {
     --theme-auth-background: var(--color-system-neutral-50);
+    --theme-auth-background-mobile: var(--color-system-neutral-0);
     --theme-logo-name: var(--color-system-neutral-900);
     --theme-logo-icon: var(--color-system-purple-600);
   }
