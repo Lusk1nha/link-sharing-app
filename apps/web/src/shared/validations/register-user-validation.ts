@@ -14,7 +14,9 @@ export const RegisterUserFormSchema = z
       message: 'Please check again',
     }),
 
-    confirmPassword: z.string('Can’t be empty'),
+    confirmPassword: z.string('Can’t be empty').min(8, {
+      message: 'Please check again',
+    }),
   })
 
   .refine((data) => data.password === data.confirmPassword, {

@@ -24,10 +24,17 @@ export class AuthValidatorService {
     email: EmailAddress,
     password: Password,
   ): Promise<UserEntity> {
-    const user = await this.usersService.findByEmailOrThrow(email);
-    const credential = await this.credentialsService.findByUserIdOrThrow(
-      user.id,
-    );
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      throw new LoginCredentialsInvalidException();
+    }
+
+    const credential = await this.credentialsService.findByUserId(user.id);
+
+    if (!credential) {
+      throw new LoginCredentialsInvalidException();
+    }
 
     const isValid = await this.passwordService.comparePassword(
       password,

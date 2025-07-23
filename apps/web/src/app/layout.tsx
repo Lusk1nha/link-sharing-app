@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import '@link-sharing-app/design-system/styles.css';
 import '@link-sharing-app/ui/styles.css';
 import './styles.css';
-import { SystemProviders } from '@/components/system-providers/system-providers';
+import { Providers } from '@/components/providers/providers';
 
 export const metadata: Metadata = {
   title: 'Link Sharing App',
@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <SystemProviders>{children}</SystemProviders>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

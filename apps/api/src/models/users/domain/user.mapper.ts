@@ -18,13 +18,17 @@ export class UserMapper extends DomainBaseMapper<UserEntity, RawUser> {
     );
   }
 
-  toModel(entity: UserEntity) {
+  toModel(entity: UserEntity): RawUser {
     return {
       id: entity.id.value,
       email: entity.email.value,
       isActive: entity.isActive,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
+      createdAt: entity.createdAt
+        ? new Date(entity.createdAt.toISOString())
+        : new Date(),
+      updatedAt: entity.updatedAt
+        ? new Date(entity.updatedAt.toISOString())
+        : new Date(),
     };
   }
 

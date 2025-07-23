@@ -9,7 +9,7 @@ export const LoginUserFormSchema = z.object({
     },
   }),
 
-  password: z.string().min(8, 'Please check again').nonempty('Can’t be empty'),
+  password: z.string('Can’t be empty').min(8, 'Please check again'),
 });
 
 export type LoginUserFormValues = z.infer<typeof LoginUserFormSchema>;

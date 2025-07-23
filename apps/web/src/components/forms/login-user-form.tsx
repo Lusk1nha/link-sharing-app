@@ -10,24 +10,40 @@ import { Form, FormGroup } from '@link-sharing-app/ui/form';
 import { useForm } from 'react-hook-form';
 import { TextInput } from '../inputs/text-input';
 import { MailIcon } from '../icons/mail-icon';
-import { PasswordInput } from '../inputs/password-input';
+
 import { Button } from '@link-sharing-app/ui/button';
 import Link from 'next/link';
 import { Text } from '@link-sharing-app/ui/text';
+import { LockIcon } from '../icons/lock-icon';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export function LoginUserForm() {
+  const router = useRouter();
+
   const form = useForm<LoginUserFormValues>({
     defaultValues: {
-      email: '',
-      password: '',
+      email: 'lucaspedro517@gmail.com',
+      password: 'teste123456789',
     },
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
     resolver: zodResolver(LoginUserFormSchema),
   });
 
-  async function onSubmit(data: LoginUserFormValues) {
-    console.log('Form submitted:', data);
+  async function onSubmit(payload: LoginUserFormValues) {
+    const response = await signIn('credentials', {
+      redirect: false,
+      email: payload.email,
+      password: payload.password,
+    });
+
+    if (!response?.ok) {
+      console.error('Login failed:', response?.error);
+      throw new Error('Login failed. Please check your credentials.');
+    }
+
+    router.push('/');
   }
 
   return (
@@ -35,22 +51,23 @@ export function LoginUserForm() {
       <FormGroup>
         <TextInput
           control={form.control}
+          type="email"
           name="email"
           autoComplete="email"
           placeholder="e.g. john@example.com"
           label="Email address"
+          icon={<MailIcon />}
           required
-        >
-          <MailIcon />
-        </TextInput>
+        />
 
-        <PasswordInput
+        <TextInput
           control={form.control}
+          type="password"
           name="password"
-          label="Password"
           autoComplete="current-password"
           placeholder="Enter your password"
-          required
+          label="Password"
+          icon={<LockIcon />}
         />
       </FormGroup>
 

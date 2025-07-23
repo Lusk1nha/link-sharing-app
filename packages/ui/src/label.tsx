@@ -8,8 +8,7 @@ const labelVariants = cva('antialised', {
       default: 'text-label-default-text',
     },
     size: {
-      default:
-        'text-preset-4',
+      default: 'text-preset-4',
     },
   },
   defaultVariants: {
@@ -19,32 +18,34 @@ const labelVariants = cva('antialised', {
 });
 
 export interface LabelProps
-  extends React.HTMLAttributes<HTMLLabelElement>,
+  extends React.LabelHTMLAttributes<HTMLLabelElement>,
     VariantProps<typeof labelVariants> {
   required?: boolean;
 }
 
-const Label = forwardRef<HTMLLabelElement, LabelProps>((props, ref) => {
-  const { children, className, variant, size, required, ...rest } = props;
+const Label = forwardRef<HTMLLabelElement, LabelProps>(
+  (props, ref) => {
+    const { children, className, variant, size, required, ...rest } = props;
 
-  return (
-    <div className="flex items-center gap-x-050">
-      <label
-        ref={ref}
-        className={cn(labelVariants({ variant, size, className }))}
-        {...rest}
-      >
-        {children}
-      </label>
+    return (
+      <div className="flex items-center gap-x-050">
+        <label
+          ref={ref}
+          className={cn(labelVariants({ variant, size, className }))}
+          {...rest}
+        >
+          {children}
+        </label>
 
-      {required && (
-        <span className={cn('text-label-danger-text')} aria-hidden="true">
-          *
-        </span>
-      )}
-    </div>
-  );
-});
+        {required && (
+          <span className={cn('text-label-danger-text')} aria-hidden="true">
+            *
+          </span>
+        )}
+      </div>
+    );
+  },
+);
 
 Label.displayName = 'Label';
 

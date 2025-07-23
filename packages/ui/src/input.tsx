@@ -10,29 +10,10 @@ const InputContext = React.createContext<InputContextValue | null>(null);
 
 interface InputWrapperProps extends React.HTMLAttributes<HTMLDivElement> {
   ref?: React.Ref<HTMLDivElement>;
-}
-
-const Wrapper = React.forwardRef<HTMLDivElement, InputWrapperProps>(
-  ({ children, className, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn('flex flex-col gap-2', className)}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  },
-);
-
-interface InputRootProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
-  className?: string;
   hasError?: boolean;
 }
 
-const Root = React.forwardRef<HTMLDivElement, InputRootProps>(
+const Wrapper = React.forwardRef<HTMLDivElement, InputWrapperProps>(
   ({ children, className, hasError = false, ...props }, ref) => {
     const contextValue = React.useMemo(() => ({ hasError }), [hasError]);
 
@@ -40,19 +21,45 @@ const Root = React.forwardRef<HTMLDivElement, InputRootProps>(
       <InputContext.Provider value={contextValue}>
         <div
           ref={ref}
-          data-slot="input-root"
-          className={cn(
-            `h-14 flex items-center gap-4 border rounded-8 px-4 py-4 text-preset-3-regular`,
-            hasError
-              ? 'border-input-border-error focus-within:border-input-border-error'
-              : 'border-input-border focus-within:border-input-border',
-            className,
-          )}
+          className={cn('flex flex-col gap-2', className)}
           {...props}
         >
           {children}
         </div>
       </InputContext.Provider>
+    );
+  },
+);
+
+interface InputRootProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+  className?: string;
+}
+
+const Root = React.forwardRef<HTMLDivElement, InputRootProps>(
+  ({ children, className, ...props }, ref) => {
+    const context = React.useContext(InputContext);
+
+    if (!context) {
+      console.error('Input.Root must be used within Input.Wrapper');
+      return null;
+    }
+
+    return (
+      <div
+        ref={ref}
+        data-slot="input-root"
+        className={cn(
+          `h-14 flex items-center gap-4 border rounded-8 px-4 py-4 text-preset-3-regular`,
+          context.hasError
+            ? 'border-input-border-error focus-within:border-input-border-error'
+            : 'border-input-border focus-within:border-input-border',
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </div>
     );
   },
 );
@@ -65,11 +72,18 @@ interface InputLabelProps extends LabelProps {
 }
 const Label = React.forwardRef<HTMLLabelElement, InputLabelProps>(
   ({ children, className, hasError, ...props }, ref) => {
+    const context = React.useContext(InputContext);
+
+    if (!context) {
+      console.error('Input.Label must be used within Input.Root');
+      return null;
+    }
+
     return (
       <LabelComp
         ref={ref}
         data-slot="input-label"
-        className={cn(className, hasError && 'text-input-error-text')}
+        className={cn(className, context.hasError && 'text-input-error-text')}
         {...props}
       >
         {children}
@@ -99,7 +113,8 @@ const Icon = React.forwardRef<HTMLSpanElement, InputIconProps>(
 );
 Icon.displayName = 'Input.Icon';
 
-interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputFieldProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string;
 }
 
@@ -117,7 +132,7 @@ const Field = React.forwardRef<HTMLInputElement, InputFieldProps>(
         ref={ref}
         data-slot="input-field"
         className={cn(
-          'flex-1 bg-transparent outline-none text-input-text placeholder:text-input-placeholder/50',
+          'w-full flex-1 bg-transparent outline-none text-input-text placeholder:text-input-placeholder/50',
           className,
         )}
         {...props}
@@ -166,6 +181,8 @@ interface InputDescriptionProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 const Description = React.forwardRef<HTMLSpanElement, InputDescriptionProps>(
   ({ children, className, ...props }, ref) => {
+    if (!children) return null;
+
     return (
       <span
         ref={ref}
